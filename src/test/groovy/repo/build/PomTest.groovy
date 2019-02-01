@@ -1,7 +1,10 @@
 package repo.build
 
+import kotlin.Unit
+import kotlin.jvm.functions.Function2
 import org.junit.Before
 import org.junit.Test
+
 /**
  */
 class PomTest extends BaseTestCase {
@@ -12,13 +15,16 @@ class PomTest extends BaseTestCase {
         sandbox = new Sandbox(new RepoEnv(createTempDir()), options)
                 .newGitComponent('c1')
                 .newGitComponent('c2')
-                .newGitComponent('manifest',
-                { Sandbox sandbox, File dir ->
-                    sandbox.gitInitialCommit(dir)
-                    sandbox.buildManifest(dir)
-                    Git.add(sandbox.context, dir, 'default.xml')
-                    Git.commit(sandbox.context, dir, 'manifest')
-                })
+                .newGitComponent("manifest",
+                new SandboxClosure(new Function2<Sandbox, File, Unit>() {
+                    @Override
+                    Unit invoke(Sandbox sandbox, File dir) {
+                        sandbox.gitInitialCommit(dir)
+                        sandbox.buildManifest(dir)
+                        Git.add(sandbox.context, dir, 'default.xml')
+                        Git.commit(sandbox.context, dir, 'manifest')
+                    }
+                }))
     }
 
     @Test
@@ -36,13 +42,25 @@ class PomTest extends BaseTestCase {
 
     @Test
     void testBuildPomHasModules() {
-        sandbox.component('c1',
+/*        sandbox.component('c1',
                 { Sandbox sandbox, File dir ->
                     def newFile = new File(dir, 'pom.xml')
                     newFile.createNewFile()
                     Git.add(sandbox.context, dir, 'pom.xml')
                     Git.commit(sandbox.context, dir, 'pom')
+                } as SandboxClosure)*/
+
+        sandbox.component('c1',
+                new SandboxClosure(new Function2<Sandbox, File, Unit>() {
+                    @Override
+                    Unit invoke(Sandbox sandbox, File dir) {
+                        def newFile = new File(dir, 'pom.xml')
+                        newFile.createNewFile()
+                        Git.add(sandbox.context, dir, 'pom.xml')
+                        Git.commit(sandbox.context, dir, 'pom')
+                    }
                 })
+        )
 
         def url = new File(sandbox.env.basedir, 'manifest')
         GitFeature.cloneManifest(context, url.getAbsolutePath(), 'master')

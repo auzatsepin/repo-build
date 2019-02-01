@@ -1,14 +1,11 @@
 package repo.build
 
+import kotlin.Unit
+import kotlin.jvm.functions.Function2
 import org.apache.maven.shared.invoker.InvocationRequest
-import org.junit.Assert
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Test
 
-/**
- */
-//@CompileStatic
 class MavenFeatureTest extends BaseTestCase {
 
     @Before
@@ -16,67 +13,85 @@ class MavenFeatureTest extends BaseTestCase {
         super.setUp()
         sandbox = new Sandbox(new RepoEnv(createTempDir()), options)
                 .newGitComponent('parent',
-                { Sandbox sandbox, File dir ->
-                    def ant = new AntBuilder()
-                    ant.copy(todir: dir) {
-                        fileset(dir: 'src/test/resources/parent') {
-                            include(name: '**/**')
+                new SandboxClosure(new Function2<Sandbox, File, Unit>() {
+                    @Override
+                    Unit invoke(Sandbox sandbox, File dir) {
+                        def ant = new AntBuilder()
+                        ant.copy(todir: dir) {
+                            fileset(dir: 'src/test/resources/parent') {
+                                include(name: '**/**')
+                            }
                         }
+                        Git.add(sandbox.context, dir, '*.*')
+                        Git.commit(sandbox.context, dir, 'add')
+                        Git.createBranch(sandbox.context, dir, 'feature/1')
                     }
-                    Git.add(sandbox.context, dir, '*.*')
-                    Git.commit(sandbox.context, dir, 'add')
-                    Git.createBranch(sandbox.context, dir, 'feature/1')
                 })
+        )
                 .newGitComponent('parent2',
-                { Sandbox sandbox, File dir ->
-                    def ant = new AntBuilder()
-                    ant.copy(todir: dir) {
-                        fileset(dir: 'src/test/resources/parent2') {
-                            include(name: '**/**')
+                new SandboxClosure(new Function2<Sandbox, File, Unit>() {
+                    @Override
+                    Unit invoke(Sandbox sandbox, File dir) {
+                        def ant = new AntBuilder()
+                        ant.copy(todir: dir) {
+                            fileset(dir: 'src/test/resources/parent2') {
+                                include(name: '**/**')
+                            }
                         }
+                        Git.add(sandbox.context, dir, '*.*')
+                        Git.commit(sandbox.context, dir, 'add')
+                        Git.createBranch(sandbox.context, dir, 'feature/1')
                     }
-                    Git.add(sandbox.context, dir, '*.*')
-                    Git.commit(sandbox.context, dir, 'add')
-                    Git.createBranch(sandbox.context, dir, 'feature/1')
-                })
+                }))
                 .newGitComponent('c1',
-                { Sandbox sandbox, File dir ->
-                    def ant = new AntBuilder()
-                    ant.copy(todir: dir) {
-                        fileset(dir: 'src/test/resources/c1') {
-                            include(name: '**/**')
+                new SandboxClosure(new Function2<Sandbox, File, Unit>() {
+                    @Override
+                    Unit invoke(Sandbox sandbox, File dir) {
+                        def ant = new AntBuilder()
+                        ant.copy(todir: dir) {
+                            fileset(dir: 'src/test/resources/c1') {
+                                include(name: '**/**')
+                            }
                         }
+                        Git.add(sandbox.context, dir, '*.*')
+                        Git.commit(sandbox.context, dir, 'add')
+                        Git.createBranch(sandbox.context, dir, 'feature/1')
                     }
-                    Git.add(sandbox.context, dir, '*.*')
-                    Git.commit(sandbox.context, dir, 'add')
-                    Git.createBranch(sandbox.context, dir, 'feature/1')
-                })
+                }))
                 .newGitComponent('c2',
-                { Sandbox sandbox, File dir ->
-                    def ant = new AntBuilder()
-                    ant.copy(todir: dir) {
-                        fileset(dir: 'src/test/resources/c2') {
-                            include(name: '**/**')
+                new SandboxClosure(new Function2<Sandbox, File, Unit>() {
+                    @Override
+                    Unit invoke(Sandbox sandbox, File dir) {
+                        def ant = new AntBuilder()
+                        ant.copy(todir: dir) {
+                            fileset(dir: 'src/test/resources/c2') {
+                                include(name: '**/**')
+                            }
                         }
+                        Git.add(sandbox.context, dir, '*.*')
+                        Git.commit(sandbox.context, dir, 'add')
+                        Git.createBranch(sandbox.context, dir, 'feature/1')
                     }
-                    Git.add(sandbox.context, dir, '*.*')
-                    Git.commit(sandbox.context, dir, 'add')
-                    Git.createBranch(sandbox.context, dir, 'feature/1')
-                })
+                }))
                 .newGitComponent('c3',
-                { Sandbox sandbox, File dir ->
-                    def ant = new AntBuilder()
-                    ant.copy(todir: dir) {
-                        fileset(dir: 'src/test/resources/c3') {
-                            include(name: '**/**')
+                new SandboxClosure(new Function2<Sandbox, File, Unit>() {
+                    @Override
+                    Unit invoke(Sandbox sandbox, File dir) {
+                        def ant = new AntBuilder()
+                        ant.copy(todir: dir) {
+                            fileset(dir: 'src/test/resources/c3') {
+                                include(name: '**/**')
+                            }
                         }
+                        Git.add(sandbox.context, dir, '*.*')
+                        Git.commit(sandbox.context, dir, 'add')
+                        Git.createBranch(sandbox.context, dir, 'feature/1')
                     }
-                    Git.add(sandbox.context, dir, '*.*')
-                    Git.commit(sandbox.context, dir, 'add')
-                    Git.createBranch(sandbox.context, dir, 'feature/1')
-                })
+                }))
                 .newGitComponent('c4',
-                { Sandbox sandbox, File dir ->
+                new SandboxClosure(new Function2<Sandbox, File, Unit>() {
+                    @Override
+                    Unit invoke(Sandbox sandbox, File dir) {
                     def ant = new AntBuilder()
                     ant.copy(todir: dir) {
                         fileset(dir: 'src/test/resources/c4') {
@@ -86,18 +101,21 @@ class MavenFeatureTest extends BaseTestCase {
                     Git.add(sandbox.context, dir, '*.*')
                     Git.commit(sandbox.context, dir, 'add')
                     Git.createBranch(sandbox.context, dir, 'feature/1')
-                })
+                    }
+                }))
                 .newGitComponent('manifest',
-                { Sandbox sandbox, File dir ->
+                new SandboxClosure(new Function2<Sandbox, File, Unit>() {
+                    @Override
+                    Unit invoke(Sandbox sandbox, File dir) {
                     sandbox.gitInitialCommit(dir)
                     sandbox.buildManifest(dir)
                     Git.add(sandbox.context, dir, 'default.xml')
                     Git.commit(sandbox.context, dir, 'manifest')
-                })
-
-        MavenFeature.purgeLocal(sandbox.context,
-                'test.repo-build'
-        )
+                    }
+                }))
+                MavenFeature.purgeLocal(sandbox.context,
+                        'test.repo-build'
+                )
 
     }
 
@@ -402,7 +420,7 @@ class MavenFeatureTest extends BaseTestCase {
 
         sandbox.component('c1',
                 { Sandbox sandbox, File dir ->
-                    Git.checkout(sandbox.context,dir, "feature/1")
+                    Git.checkout(sandbox.context, dir, "feature/1")
                     def ant = new AntBuilder()
                     ant.copy(todir: dir, overwrite: true) {
                         fileset(dir: 'src/test/resources/circular/c1') {

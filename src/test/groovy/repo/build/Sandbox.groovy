@@ -16,27 +16,27 @@ class Sandbox {
 
     }
 
-    Sandbox newGitComponent(String component, Closure action) {
+    Sandbox newGitComponent(String component, SandboxClosure action) {
         def dir = new File(env.basedir, component)
         dir.mkdirs()
         Git.init(context, dir)
         Git.user(context, dir, "you@example.com", "Your Name")
-        action(this, dir)
+        action.invoke(this, dir)
         components.put(component, dir)
         return this
     }
 
-    Sandbox component(String component, Closure action) {
-        action(this, components.get(component))
+    Sandbox component(String component, SandboxClosure action) {
+        action.invoke(this, components.get(component))
         return this
     }
 
     Sandbox newGitComponent(String component) {
-        return newGitComponent(component,
-                {
-                    Sandbox sandbox, File dir ->
-                        sandbox.gitInitialCommit(dir)
-                })
+        def dir = new File(env.basedir, component)
+        dir.mkdirs()
+        Git.init(context, dir)
+        Git.user(context, dir, "you@example.com", "Your Name")
+        return gitInitialCommit(dir)
     }
 
     Sandbox gitInitialCommit(File dir) {
@@ -63,11 +63,11 @@ class Sandbox {
     }
 
     Sandbox changeDefaultBranchComponentOnManifest(File dirManifest, String component, String defaultBranch) {
-        File file = new File(dirManifest,'default.xml')
+        File file = new File(dirManifest, 'default.xml')
 
         def text = file.text
-        file.write(text.replaceAll('<project name=\''+component+'\' remote=\'origin\' path=\''+component+'\' revision=\'refs/heads/[\\w\\s./]+\' />',
-                '<project name=\''+component+'\' remote=\'origin\' path=\''+component+'\' revision=\'refs/heads/'+defaultBranch+'\' />'))
+        file.write(text.replaceAll('<project name=\'' + component + '\' remote=\'origin\' path=\'' + component + '\' revision=\'refs/heads/[\\w\\s./]+\' />',
+                '<project name=\'' + component + '\' remote=\'origin\' path=\'' + component + '\' revision=\'refs/heads/' + defaultBranch + '\' />'))
     }
 
 }
