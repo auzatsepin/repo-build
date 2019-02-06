@@ -1,9 +1,9 @@
 package repo.build
 
-import kotlin.Unit
 import kotlin.jvm.functions.Function2
 import org.junit.Before
 import org.junit.Test
+
 /**
  */
 class RepoManifestTest extends BaseTestCase {
@@ -13,14 +13,16 @@ class RepoManifestTest extends BaseTestCase {
         super.setUp()
         sandbox = new Sandbox(new RepoEnv(createTempDir()), options)
                 .newGitComponent('c1')
-                .newGitComponent('c2',new SandboxClosure(
-                new Function2<Sandbox, File, Unit>() {
+                .newGitComponent('c2')
+                .newGitComponent('manifest', new SandboxClosure(
+                new Function2<Sandbox, File, Sandbox>() {
                     @Override
-                    Unit invoke(Sandbox sandbox, File dir) {
+                    Sandbox invoke(Sandbox sandbox, File dir) {
                         sandbox.gitInitialCommit(dir)
                         sandbox.buildManifest(dir)
                         Git.add(sandbox.context, dir, 'default.xml')
                         Git.commit(sandbox.context, dir, 'manifest')
+                        return sandbox
                     }
                 }
         ))

@@ -1,8 +1,6 @@
 package repo.build
 
 import com.google.common.io.Files
-import groovy.xml.XmlUtil
-import kotlin.Unit
 import kotlin.jvm.functions.Function2
 import org.junit.Before
 import org.junit.Rule
@@ -25,13 +23,14 @@ class GitFeatureTest extends BaseTestCase {
                 .newGitComponent('c1')
                 .newGitComponent('c2')
                 .newGitComponent('manifest', new SandboxClosure(
-                new Function2<Sandbox, File, Unit>() {
+                new Function2<Sandbox, File, Sandbox>() {
                     @Override
-                    Unit invoke(Sandbox sandbox, File dir) {
+                    Sandbox invoke(Sandbox sandbox, File dir) {
                         sandbox.gitInitialCommit(dir)
                         sandbox.buildManifest(dir)
                         Git.add(sandbox.context, dir, 'default.xml')
                         Git.commit(sandbox.context, dir, 'manifest')
+                        return sandbox
                     }
                 }
         ))
@@ -88,10 +87,19 @@ class GitFeatureTest extends BaseTestCase {
         def url = new File(sandbox.env.basedir, 'manifest')
         GitFeature.cloneManifest(context, url.getAbsolutePath(), 'master')
 
-        sandbox.component('c1',
+/*        sandbox.component('c1',
                 { Sandbox sandbox, File dir ->
                     Git.createBranch(sandbox.context, dir, 'feature/1')
-                })
+                })*/
+        sandbox.component("c1", new SandboxClosure(
+                new Function2<Sandbox, File, Sandbox>() {
+                    @Override
+                    Sandbox invoke(Sandbox sandbox, File dir) {
+                        Git.createBranch(sandbox.context, dir, 'feature/1')
+                        return sandbox
+                    }
+                }
+        ))
 
         GitFeature.sync(context)
         GitFeature.switch(context, 'feature/1')
@@ -104,16 +112,26 @@ class GitFeatureTest extends BaseTestCase {
         def url = new File(sandbox.env.basedir, 'manifest')
         GitFeature.cloneManifest(context, url.getAbsolutePath(), 'master')
 
-        sandbox.component('c1',
-                { Sandbox sandbox, File dir ->
-                    Git.createBranch(sandbox.context, dir, 'feature/1')
-                    Git.createBranch(sandbox.context, dir, 'feature/2')
-                })
+        sandbox.component("c1", new SandboxClosure(
+                new Function2<Sandbox, File, Sandbox>() {
+                    @Override
+                    Sandbox invoke(Sandbox sandbox, File dir) {
+                        Git.createBranch(sandbox.context, dir, 'feature/1')
+                        Git.createBranch(sandbox.context, dir, 'feature/2')
+                        return sandbox
+                    }
+                }
+        ))
 
-        sandbox.component('c2',
-                { Sandbox sandbox, File dir ->
-                    Git.createBranch(sandbox.context, dir, 'feature/1')
-                })
+        sandbox.component("c2", new SandboxClosure(
+                new Function2<Sandbox, File, Sandbox>() {
+                    @Override
+                    Sandbox invoke(Sandbox sandbox, File dir) {
+                        Git.createBranch(sandbox.context, dir, 'feature/1')
+                        return sandbox
+                    }
+                }
+        ))
 
         GitFeature.sync(context)
         GitFeature.switch(context, 'feature/1')
@@ -126,17 +144,26 @@ class GitFeatureTest extends BaseTestCase {
         def url = new File(sandbox.env.basedir, 'manifest')
         GitFeature.cloneManifest(context, url.getAbsolutePath(), 'master')
 
-        sandbox.component('c1',
-                { Sandbox sandbox, File dir ->
-                    Git.createBranch(sandbox.context, dir, 'feature/1')
-                    Git.createBranch(sandbox.context, dir, 'task/1')
-                })
+        sandbox.component("c1", new SandboxClosure(
+                new Function2<Sandbox, File, Sandbox>() {
+                    @Override
+                    Sandbox invoke(Sandbox sandbox, File dir) {
+                        Git.createBranch(sandbox.context, dir, 'feature/1')
+                        Git.createBranch(sandbox.context, dir, 'task/1')
+                        return sandbox
+                    }
+                }
+        ))
 
-        sandbox.component('c2',
-                { Sandbox sandbox, File dir ->
-                    Git.createBranch(sandbox.context, dir, 'feature/1')
-                })
-
+        sandbox.component("c2", new SandboxClosure(
+                new Function2<Sandbox, File, Sandbox>() {
+                    @Override
+                    Sandbox invoke(Sandbox sandbox, File dir) {
+                        Git.createBranch(sandbox.context, dir, 'feature/1')
+                        return sandbox
+                    }
+                }
+        ))
         GitFeature.sync(context)
         GitFeature.switch(context, 'feature/1', 'task/1')
         assertEquals('task/1', Git.getBranch(context, new File(env.basedir, 'c1')))
@@ -147,15 +174,29 @@ class GitFeatureTest extends BaseTestCase {
         def url = new File(sandbox.env.basedir, 'manifest')
         GitFeature.cloneManifest(context, url.getAbsolutePath(), 'master')
 
-        sandbox.component('c1',
-                { Sandbox sandbox, File dir ->
-                    Git.createBranch(sandbox.context, dir, 'task/1')
-                })
+        sandbox.component("c1", new SandboxClosure(
+                new Function2<Sandbox, File, Sandbox>() {
+                    @Override
+                    Sandbox invoke(Sandbox sandbox, File dir) {
+                        Git.createBranch(sandbox.context, dir, 'task/1')
+                        return sandbox
+                    }
+                }
+        ))
 
-        sandbox.component('c2',
+/*        sandbox.component('c2',
                 { Sandbox sandbox, File dir ->
                     Git.createBranch(sandbox.context, dir, 'feature/1')
-                })
+                })*/
+        sandbox.component("c2", new SandboxClosure(
+                new Function2<Sandbox, File, Sandbox>() {
+                    @Override
+                    Sandbox invoke(Sandbox sandbox, File dir) {
+                        Git.createBranch(sandbox.context, dir, 'feature/1')
+                        return sandbox
+                    }
+                }
+        ))
 
         GitFeature.sync(context)
         try {
@@ -173,15 +214,19 @@ class GitFeatureTest extends BaseTestCase {
         def url = new File(sandbox.env.basedir, 'manifest')
         GitFeature.cloneManifest(context, url.getAbsolutePath(), 'master')
 
-        sandbox.component('c1',
-                { Sandbox sandbox, File dir ->
-                    Git.createBranch(sandbox.context, dir, 'feature/1')
-                    def newFile = new File(dir, 'test')
-                    newFile.createNewFile()
-                    Git.add(sandbox.context, dir, 'test')
-                    Git.commit(sandbox.context, dir, 'test')
-                })
-
+        sandbox.component("c1", new SandboxClosure(
+                new Function2<Sandbox, File, Sandbox>() {
+                    @Override
+                    Sandbox invoke(Sandbox sandbox, File dir) {
+                        Git.createBranch(sandbox.context, dir, 'feature/1')
+                        def newFile = new File(dir, 'test')
+                        newFile.createNewFile()
+                        Git.add(sandbox.context, dir, 'test')
+                        Git.commit(sandbox.context, dir, 'test')
+                        return sandbox
+                    }
+                }
+        ))
         GitFeature.sync(context)
 
         GitFeature.releaseMergeFeature(context, 'feature/1', true)
@@ -197,14 +242,19 @@ class GitFeatureTest extends BaseTestCase {
         def url = new File(sandbox.env.basedir, 'manifest')
         GitFeature.cloneManifest(context, url.getAbsolutePath(), 'master')
 
-        sandbox.component('c1',
-                { Sandbox sandbox, File dir ->
-                    Git.createBranch(context, dir, 'feature/1')
-                    def newFile = new File(dir, 'test')
-                    newFile.createNewFile()
-                    Git.add(context, dir, 'test')
-                    Git.commit(context, dir, 'test')
-                })
+        sandbox.component("c1", new SandboxClosure(
+                new Function2<Sandbox, File, Sandbox>() {
+                    @Override
+                    Sandbox invoke(Sandbox sandbox, File dir) {
+                        Git.createBranch(context, dir, 'feature/1')
+                        def newFile = new File(dir, 'test')
+                        newFile.createNewFile()
+                        Git.add(context, dir, 'test')
+                        Git.commit(context, dir, 'test')
+                        return sandbox
+                    }
+                }
+        ))
 
         GitFeature.sync(context)
         GitFeature.switch(context, 'feature/1')
@@ -222,19 +272,24 @@ class GitFeatureTest extends BaseTestCase {
         def url = new File(sandbox.env.basedir, 'manifest')
         GitFeature.cloneManifest(context, url.getAbsolutePath(), 'master')
 
-        sandbox.component('c1',
-                { Sandbox sandbox, File dir ->
-                    // create task branch
-                    def c1Dir = new File(sandbox.env.basedir, 'c1')
-                    Git.createBranch(context, c1Dir, 'task/1')
-                    Git.createBranch(context, dir, 'feature/1')
-                    Git.checkout(context, dir, 'feature/1')
-                    def newFile = new File(dir, 'test')
-                    newFile.createNewFile()
-                    newFile.text = 'test'
-                    Git.add(context, dir, 'test')
-                    Git.commit(context, dir, 'test')
-                })
+        sandbox.component("c1", new SandboxClosure(
+                new Function2<Sandbox, File, Sandbox>() {
+                    @Override
+                    Sandbox invoke(Sandbox sandbox, File dir) {
+                        // create task branch
+                        def c1Dir = new File(sandbox.env.basedir, 'c1')
+                        Git.createBranch(context, c1Dir, 'task/1')
+                        Git.createBranch(context, dir, 'feature/1')
+                        Git.checkout(context, dir, 'feature/1')
+                        def newFile = new File(dir, 'test')
+                        newFile.createNewFile()
+                        newFile.text = 'test'
+                        Git.add(context, dir, 'test')
+                        Git.commit(context, dir, 'test')
+                        return sandbox
+                    }
+                }
+        ))
 
         GitFeature.sync(context)
         GitFeature.switch(context, 'feature/1', 'task/1')
@@ -372,14 +427,19 @@ class GitFeatureTest extends BaseTestCase {
         def url = new File(sandbox.env.basedir, 'manifest')
         GitFeature.cloneManifest(context, url.getAbsolutePath(), 'master')
 
-        sandbox.component('c1',
-                { Sandbox sandbox, File dir ->
-                    def newFile = new File(dir, 'test')
-                    newFile.createNewFile()
-                    newFile.text = 'TEST123'
-                    Git.add(sandbox.context, dir, 'test')
-                    Git.commit(sandbox.context, dir, 'test')
-                })
+        sandbox.component("c1", new SandboxClosure(
+                new Function2<Sandbox, File, Sandbox>() {
+                    @Override
+                    Sandbox invoke(Sandbox sandbox, File dir) {
+                        def newFile = new File(dir, 'test')
+                        newFile.createNewFile()
+                        newFile.text = 'TEST123'
+                        Git.add(sandbox.context, dir, 'test')
+                        Git.commit(sandbox.context, dir, 'test')
+                        return sandbox
+                    }
+                }
+        ))
 
         GitFeature.sync(context)
 
@@ -394,14 +454,19 @@ class GitFeatureTest extends BaseTestCase {
         def url = new File(sandbox.env.basedir, 'manifest')
         GitFeature.cloneManifest(context, url.getAbsolutePath(), 'master')
 
-        sandbox.component('c1',
-                { Sandbox sandbox, File dir ->
-                    def newFile = new File(dir, 'test')
-                    newFile.createNewFile()
-                    newFile.text = 'TEST123'
-                    Git.add(sandbox.context, dir, 'test')
-                    Git.commit(sandbox.context, dir, 'test')
-                })
+        sandbox.component("c1", new SandboxClosure(
+                new Function2<Sandbox, File, Sandbox>() {
+                    @Override
+                    Sandbox invoke(Sandbox sandbox, File dir) {
+                        def newFile = new File(dir, 'test')
+                        newFile.createNewFile()
+                        newFile.text = 'TEST123'
+                        Git.add(sandbox.context, dir, 'test')
+                        Git.commit(sandbox.context, dir, 'test')
+                        return sandbox
+                    }
+                }
+        ))
 
         GitFeature.sync(context)
 
@@ -420,10 +485,15 @@ class GitFeatureTest extends BaseTestCase {
         def url = new File(sandbox.env.basedir, 'manifest')
         GitFeature.cloneManifest(context, url.getAbsolutePath(), 'master')
 
-        sandbox.component('c1',
-                { Sandbox sandbox, File dir ->
-                    Git.createBranch(sandbox.context, dir, 'feature/1')
-                })
+        sandbox.component("c1", new SandboxClosure(
+                new Function2<Sandbox, File, Sandbox>() {
+                    @Override
+                    Sandbox invoke(Sandbox sandbox, File dir) {
+                        Git.createBranch(sandbox.context, dir, 'feature/1')
+                        return sandbox
+                    }
+                }
+        ))
 
         GitFeature.sync(context)
         GitFeature.switch(context, 'feature/1')
@@ -446,16 +516,24 @@ class GitFeatureTest extends BaseTestCase {
 
         GitFeature.pushFeatureBranch(context, 'feature/1', true)
 
-        sandbox.component('c1',
-                { Sandbox sandbox, File dir ->
-                    Git.checkout(sandbox.context, dir, 'feature/1')
-                    assertEquals('update', new File(dir, 'README.md').text)
-                })
-        sandbox.component('c2',
-                { Sandbox sandbox, File dir ->
-                    Git.checkout(sandbox.context, dir, 'feature/1')
-                    assertEquals('update', new File(dir, 'README.md').text)
-                })
+        sandbox.component("c1", new SandboxClosure(
+                new Function2<Sandbox, File, Sandbox>() {
+                    @Override
+                    Sandbox invoke(Sandbox sandbox, File dir) {
+                        Git.checkout(sandbox.context, dir, 'feature/1')
+                        assertEquals('update', new File(dir, 'README.md').text)
+                    }
+                }
+        ))
+        sandbox.component("c2", new SandboxClosure(
+                new Function2<Sandbox, File, Sandbox>() {
+                    @Override
+                    Sandbox invoke(Sandbox sandbox, File dir) {
+                        Git.checkout(sandbox.context, dir, 'feature/1')
+                        assertEquals('update', new File(dir, 'README.md').text)
+                    }
+                }
+        ))
     }
 
     @Test
@@ -463,17 +541,26 @@ class GitFeatureTest extends BaseTestCase {
         def url = new File(sandbox.env.basedir, 'manifest')
         GitFeature.cloneManifest(context, url.getAbsolutePath(), 'master')
 
-        // for enable push to master
-        sandbox.component('c1',
-                { Sandbox sandbox, File dir ->
-                    Git.createBranch(sandbox.context, dir, 'master1')
-                    Git.checkout(sandbox.context, dir, 'master1')
-                })
-        sandbox.component('c2',
-                { Sandbox sandbox, File dir ->
-                    Git.createBranch(sandbox.context, dir, 'master1')
-                    Git.checkout(sandbox.context, dir, 'master1')
-                })
+        sandbox.component("c1", new SandboxClosure(
+                new Function2<Sandbox, File, Sandbox>() {
+                    @Override
+                    Sandbox invoke(Sandbox sandbox, File dir) {
+                        Git.createBranch(sandbox.context, dir, 'master1')
+                        Git.checkout(sandbox.context, dir, 'master1')
+                        return sandbox
+                    }
+                }
+        ))
+        sandbox.component("c2", new SandboxClosure(
+                new Function2<Sandbox, File, Sandbox>() {
+                    @Override
+                    Sandbox invoke(Sandbox sandbox, File dir) {
+                        Git.createBranch(sandbox.context, dir, 'master1')
+                        Git.checkout(sandbox.context, dir, 'master1')
+                        return sandbox
+                    }
+                }
+        ))
 
 
         GitFeature.sync(context)
@@ -494,16 +581,27 @@ class GitFeatureTest extends BaseTestCase {
 
         GitFeature.pushManifestBranch(context, true)
 
-        sandbox.component('c1',
-                { Sandbox sandbox, File dir ->
-                    Git.checkout(sandbox.context, dir, 'master')
-                    assertEquals('update', new File(dir, 'README.md').text)
-                })
-        sandbox.component('c2',
-                { Sandbox sandbox, File dir ->
-                    Git.checkout(sandbox.context, dir, 'master')
-                    assertEquals('update', new File(dir, 'README.md').text)
-                })
+        sandbox.component("c1", new SandboxClosure(
+                new Function2<Sandbox, File, Sandbox>() {
+                    @Override
+                    Sandbox invoke(Sandbox sandbox, File dir) {
+                        Git.checkout(sandbox.context, dir, 'master')
+                        assertEquals('update', new File(dir, 'README.md').text)
+                        return sandbox
+                    }
+                }
+        ))
+
+        sandbox.component("c2", new SandboxClosure(
+                new Function2<Sandbox, File, Sandbox>() {
+                    @Override
+                    Sandbox invoke(Sandbox sandbox, File dir) {
+                        Git.checkout(sandbox.context, dir, 'master')
+                        assertEquals('update', new File(dir, 'README.md').text)
+                        return sandbox
+                    }
+                }
+        ))
     }
 
     @Test
@@ -516,15 +614,24 @@ class GitFeatureTest extends BaseTestCase {
         GitFeature.addTagToCurrentHeads(context, '1')
         GitFeature.pushTag(context, '1')
 
+        sandbox.component("c1", new SandboxClosure(
+                new Function2<Sandbox, File, Sandbox>() {
+                    @Override
+                    Sandbox invoke(Sandbox sandbox, File dir) {
+                        assertTrue(Git.tagPresent(sandbox.context, dir, '1'))
+                    }
+                }
+        ))
 
-        sandbox.component('c1',
-                { Sandbox sandbox, File dir ->
-                    assertTrue(Git.tagPresent(sandbox.context, dir, '1'))
-                })
-        sandbox.component('c2',
-                { Sandbox sandbox, File dir ->
-                    assertTrue(Git.tagPresent(sandbox.context, dir, '1'))
-                })
+        sandbox.component("c2", new SandboxClosure(
+                new Function2<Sandbox, File, Sandbox>() {
+                    @Override
+                    Sandbox invoke(Sandbox sandbox, File dir) {
+                        assertTrue(Git.tagPresent(sandbox.context, dir, '1'))
+                        return sandbox
+                    }
+                }
+        ))
 
     }
 
@@ -564,12 +671,17 @@ class GitFeatureTest extends BaseTestCase {
 
         sandbox
                 .newGitComponent('c3')
-                .component('manifest',
-                { Sandbox sandbox, File dir ->
-                    sandbox.buildManifest(dir)
-                    Git.add(sandbox.context, dir, 'default.xml')
-                    Git.commit(sandbox.context, dir, 'add_c3')
-                })
+                .component("manifest", new SandboxClosure(
+                    new Function2<Sandbox, File, Sandbox>() {
+                        @Override
+                        Sandbox invoke(Sandbox sandbox, File dir) {
+                            sandbox.buildManifest(dir)
+                            Git.add(sandbox.context, dir, 'default.xml')
+                            Git.commit(sandbox.context, dir, 'add_c3')
+                            return sandbox
+                        }
+                    }
+        ))
 
         GitFeature.sync(context)
 
@@ -594,38 +706,46 @@ class GitFeatureTest extends BaseTestCase {
         def url = new File(sandbox.env.basedir, 'manifest')
         GitFeature.cloneManifest(context, url.getAbsolutePath(), 'master')
 
-        //component
-        sandbox.component('c2',
-                { Sandbox sandbox, File dir ->
-                    Git.createBranch(context, dir, 'develop/1.0')
-                    Git.createBranch(context, dir, 'develop/2.0')
+        sandbox.component("c2", new SandboxClosure(
+                new Function2<Sandbox, File, Sandbox>() {
+                    @Override
+                    Sandbox invoke(Sandbox sandbox, File dir) {
+                        Git.createBranch(context, dir, 'develop/1.0')
+                        Git.createBranch(context, dir, 'develop/2.0')
 
-                    //some changes
-                    Git.checkout(context, dir, 'develop/1.0')
-                    def newFile = new File(dir, 'test')
-                    newFile.createNewFile()
-                    newFile.text = 'TEST123'
-                    Git.add(context, dir, 'test')
-                    Git.commit(context, dir, 'test')
-                })
+                        //some changes
+                        Git.checkout(context, dir, 'develop/1.0')
+                        def newFile = new File(dir, 'test')
+                        newFile.createNewFile()
+                        newFile.text = 'TEST123'
+                        Git.add(context, dir, 'test')
+                        Git.commit(context, dir, 'test')
+                        return sandbox
+                    }
+                }
+        ))
 
-        //manifest
-        sandbox.component('manifest',
-                { Sandbox sandbox, File dir ->
-                    //change default branch to develop/1.0 on c2 component in manifest
-                    Git.createBranch(context, dir, '1.0')
-                    Git.checkout(context, dir, '1.0')
-                    sandbox.changeDefaultBranchComponentOnManifest(dir, 'c2', 'develop/1.0')
-                    Git.add(context, dir, 'default.xml')
-                    Git.commit(context, dir, 'vup')
+        sandbox.component("manifest", new SandboxClosure(
+                new Function2<Sandbox, File, Sandbox>() {
+                    @Override
+                    Sandbox invoke(Sandbox sandbox, File dir) {
+                        //change default branch to develop/1.0 on c2 component in manifest
+                        Git.createBranch(context, dir, '1.0')
+                        Git.checkout(context, dir, '1.0')
+                        sandbox.changeDefaultBranchComponentOnManifest(dir, 'c2', 'develop/1.0')
+                        Git.add(context, dir, 'default.xml')
+                        Git.commit(context, dir, 'vup')
 
-                    //change default branch to develop/2.0 on c2 component in manifest
-                    Git.createBranch(context, dir, '2.0')
-                    Git.checkout(context, dir, '2.0')
-                    sandbox.changeDefaultBranchComponentOnManifest(dir, 'c2', 'develop/2.0')
-                    Git.add(context, dir, 'default.xml')
-                    Git.commit(context, dir, 'vup')
-                })
+                        //change default branch to develop/2.0 on c2 component in manifest
+                        Git.createBranch(context, dir, '2.0')
+                        Git.checkout(context, dir, '2.0')
+                        sandbox.changeDefaultBranchComponentOnManifest(dir, 'c2', 'develop/2.0')
+                        Git.add(context, dir, 'default.xml')
+                        Git.commit(context, dir, 'vup')
+                        return sandbox
+                    }
+                }
+        ))
 
         //expected call function
         GitFeature.releaseMergeRelease(context, '1.0', '2.0', /(\d+\.\d+)/,
@@ -639,15 +759,25 @@ class GitFeatureTest extends BaseTestCase {
 
     @Test
     void testCreateManifestBundles(){
-        sandbox.component('c1',
-                { Sandbox sandbox, File dir ->
-                    Git.createBranch(sandbox.context, dir, 'origin/master')
-                })
+        sandbox.component("c1", new SandboxClosure(
+                new Function2<Sandbox, File, Sandbox>() {
+                    @Override
+                    Sandbox invoke(Sandbox sandbox, File dir) {
+                        Git.createBranch(sandbox.context, dir, 'origin/master')
+                        return sandbox
+                    }
+                }
+        ))
 
-        sandbox.component('c2',
-                { Sandbox sandbox, File dir ->
-                    Git.createBranch(sandbox.context, dir, 'origin/master')
-                })
+        sandbox.component("c2", new SandboxClosure(
+                new Function2<Sandbox, File, Sandbox>() {
+                    @Override
+                    Sandbox invoke(Sandbox sandbox, File dir) {
+                        Git.createBranch(sandbox.context, dir, 'origin/master')
+                        return sandbox
+                    }
+                }
+        ))
 
         File bundleDir = Files.createTempDir()
         sandbox.context.env.openManifest()
@@ -662,41 +792,56 @@ class GitFeatureTest extends BaseTestCase {
 
     @Test
     void testCloneFromBundle() {
-        sandbox.component('c1',
-                { Sandbox sandbox, File dir ->
-                    Git.createBranch(sandbox.context, dir, '1.0')
-                    def newFile = new File(dir, "test")
-                    newFile.createNewFile()
-                    newFile.text = 'TEST123'
-                    Git.add(context, dir, 'test')
-                    Git.commit(context, dir, 'test_1.0')
-                })
 
-        sandbox.component('c2',
-                { Sandbox sandbox, File dir ->
-                    Git.createBranch(sandbox.context, dir, '1.5')
-                    def newFile = new File(dir, "test")
-                    newFile.createNewFile()
-                    newFile.text = 'Launch2'
-                    Git.add(context, dir, 'test')
-                    Git.commit(context, dir, 'test_1.5')
-                })
+        sandbox.component("c1", new SandboxClosure(
+                new Function2<Sandbox, File, Sandbox>() {
+                    @Override
+                    Sandbox invoke(Sandbox sandbox, File dir) {
+                        Git.createBranch(sandbox.context, dir, '1.0')
+                        def newFile = new File(dir, "test")
+                        newFile.createNewFile()
+                        newFile.text = 'TEST123'
+                        Git.add(context, dir, 'test')
+                        Git.commit(context, dir, 'test_1.0')
+                        return sandbox
+                    }
+                }
+        ))
 
-        //manifest
-        sandbox.component('manifest',
-                { Sandbox sandbox, File dir ->
-                    Git.createBranch(context, dir, '1.0')
-                    Git.checkout(context, dir, '1.0')
-                    sandbox.changeDefaultBranchComponentOnManifest(dir, 'c1', '1.0')
-                    Git.add(context, dir, 'default.xml')
-                    Git.commit(context, dir, 'vup')
+        sandbox.component("c2", new SandboxClosure(
+                new Function2<Sandbox, File, Sandbox>() {
+                    @Override
+                    Sandbox invoke(Sandbox sandbox, File dir) {
+                        Git.createBranch(sandbox.context, dir, '1.5')
+                        def newFile = new File(dir, "test")
+                        newFile.createNewFile()
+                        newFile.text = 'Launch2'
+                        Git.add(context, dir, 'test')
+                        Git.commit(context, dir, 'test_1.5')
+                        return sandbox
+                    }
+                }
+        ))
 
-                    Git.createBranch(context, dir, '1.5')
-                    Git.checkout(context, dir, '1.5')
-                    sandbox.changeDefaultBranchComponentOnManifest(dir, 'c2', '1.5')
-                    Git.add(context, dir, 'default.xml')
-                    Git.commit(context, dir, 'vup')
-                })
+        sandbox.component("manifest", new SandboxClosure(
+                new Function2<Sandbox, File, Sandbox>() {
+                    @Override
+                    Sandbox invoke(Sandbox sandbox, File dir) {
+                        Git.createBranch(context, dir, '1.0')
+                        Git.checkout(context, dir, '1.0')
+                        sandbox.changeDefaultBranchComponentOnManifest(dir, 'c1', '1.0')
+                        Git.add(context, dir, 'default.xml')
+                        Git.commit(context, dir, 'vup')
+
+                        Git.createBranch(context, dir, '1.5')
+                        Git.checkout(context, dir, '1.5')
+                        sandbox.changeDefaultBranchComponentOnManifest(dir, 'c2', '1.5')
+                        Git.add(context, dir, 'default.xml')
+                        Git.commit(context, dir, 'vup')
+                        return sandbox
+                    }
+                }
+        ))
 
         def url = new File(sandbox.env.basedir, 'manifest')
         GitFeature.cloneManifest(context, url.getAbsolutePath(), '1.5')
@@ -739,33 +884,38 @@ class GitFeatureTest extends BaseTestCase {
 
     @Test
     void testCreateDeltaBundle() {
-        sandbox.component('c1',
-                { Sandbox sandbox, File dir ->
-                    Git.createBranch(sandbox.context, dir, '1.0')
-                    Git.checkout(sandbox.context, dir, '1.0')
-                    def newFile = new File(dir, "test")
-                    newFile.createNewFile()
-                    newFile.text = 'TEST123'
-                    Git.add(sandbox.context, dir, 'test')
-                    Git.commit(sandbox.context, dir, 'test_1.0')
-                    def firstCommit = Git.getLastCommit(sandbox.context, dir)
-                    def newFile2 = new File(dir, "test2")
-                    newFile2.createNewFile()
-                    newFile2.text = 'AAAAA'
-                    Git.add(sandbox.context, dir, 'test2')
-                    Git.commit(sandbox.context, dir, 'test_2.0')
-                    def bundleFile = File.createTempFile("repo-build-test", ".bundle")
-                    Git.createFeatureBundle(sandbox.context, '1.0', dir, bundleFile, firstCommit)
+        sandbox.component("c1", new SandboxClosure(
+                new Function2<Sandbox, File, Sandbox>() {
+                    @Override
+                    Sandbox invoke(Sandbox sandbox, File dir) {
+                        Git.createBranch(sandbox.context, dir, '1.0')
+                        Git.checkout(sandbox.context, dir, '1.0')
+                        def newFile = new File(dir, "test")
+                        newFile.createNewFile()
+                        newFile.text = 'TEST123'
+                        Git.add(sandbox.context, dir, 'test')
+                        Git.commit(sandbox.context, dir, 'test_1.0')
+                        def firstCommit = Git.getLastCommit(sandbox.context, dir)
+                        def newFile2 = new File(dir, "test2")
+                        newFile2.createNewFile()
+                        newFile2.text = 'AAAAA'
+                        Git.add(sandbox.context, dir, 'test2')
+                        Git.commit(sandbox.context, dir, 'test_2.0')
+                        def bundleFile = File.createTempFile("repo-build-test", ".bundle")
+                        Git.createFeatureBundle(sandbox.context, '1.0', dir, bundleFile, firstCommit)
 
-                    try {
-                        Git.clone(sandbox.context, bundleFile.absolutePath, 'origin', new File(sandbox.env.basedir, 'clone'))
-                    } catch (RepoBuildException e){
-                        assertTrue(true)
-                        return
+                        try {
+                            Git.clone(sandbox.context, bundleFile.absolutePath, 'origin', new File(sandbox.env.basedir, 'clone'))
+                        } catch (RepoBuildException e){
+                            assertTrue(true)
+                            return
+                        }
+
+                        assertTrue(false)
+                        return sandbox
                     }
-
-                    assertTrue(false)
-                })
+                }
+        ))
     }
 
     @Test
@@ -782,24 +932,33 @@ class GitFeatureTest extends BaseTestCase {
         GitFeature.createBundleForManifest(context, bundleDir1, 'manifest.bundle')
         GitFeature.createManifestBundles(context, bundleDir1)
 
-        //add some commits
-        sandbox.component('c1',
-                { Sandbox sandbox, File dir ->
-                    def newFile = new File(dir, "test")
-                    newFile.createNewFile()
-                    newFile.text = 'TEST123'
-                    Git.add(context, dir, 'test')
-                    Git.commit(context, dir, 'test_1.0')
-                })
+        sandbox.component("c1", new SandboxClosure(
+                new Function2<Sandbox, File, Sandbox>() {
+                    @Override
+                    Sandbox invoke(Sandbox sandbox, File dir) {
+                        def newFile = new File(dir, "test")
+                        newFile.createNewFile()
+                        newFile.text = 'TEST123'
+                        Git.add(context, dir, 'test')
+                        Git.commit(context, dir, 'test_1.0')
+                        return sandbox
+                    }
+                }
+        ))
 
-        sandbox.component('c2',
-                { Sandbox sandbox, File dir ->
-                    def newFile = new File(dir, "test")
-                    newFile.createNewFile()
-                    newFile.text = 'Launch2'
-                    Git.add(context, dir, 'test')
-                    Git.commit(context, dir, 'test_1.5')
-                })
+        sandbox.component("c2", new SandboxClosure(
+                new Function2<Sandbox, File, Sandbox>() {
+                    @Override
+                    Sandbox invoke(Sandbox sandbox, File dir) {
+                        def newFile = new File(dir, "test")
+                        newFile.createNewFile()
+                        newFile.text = 'Launch2'
+                        Git.add(context, dir, 'test')
+                        Git.commit(context, dir, 'test_1.5')
+                        return sandbox
+                    }
+                }
+        ))
 
         GitFeature.sync(context)
 

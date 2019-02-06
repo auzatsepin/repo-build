@@ -1,6 +1,6 @@
 package repo.build
 
-import kotlin.Unit
+
 import kotlin.jvm.functions.Function2
 import org.junit.Before
 import org.junit.Test
@@ -16,13 +16,14 @@ class PomTest extends BaseTestCase {
                 .newGitComponent('c1')
                 .newGitComponent('c2')
                 .newGitComponent("manifest",
-                new SandboxClosure(new Function2<Sandbox, File, Unit>() {
+                new SandboxClosure(new Function2<Sandbox, File, Sandbox>() {
                     @Override
-                    Unit invoke(Sandbox sandbox, File dir) {
+                    Sandbox invoke(Sandbox sandbox, File dir) {
                         sandbox.gitInitialCommit(dir)
                         sandbox.buildManifest(dir)
                         Git.add(sandbox.context, dir, 'default.xml')
                         Git.commit(sandbox.context, dir, 'manifest')
+                        return sandbox
                     }
                 }))
     }
@@ -44,13 +45,15 @@ class PomTest extends BaseTestCase {
     void testBuildPomHasModules() {
 
         sandbox.component("c1", new SandboxClosure(
-                new Function2<Sandbox, File, Unit>() {
+                new Function2<Sandbox, File, Sandbox>() {
                     @Override
-                    Unit invoke(Sandbox sandbox, File dir) {
-                        def newFile = new File(dir, 'pom.xml')
+                    Sandbox invoke(Sandbox sandbox, File dir) {
+                        def newFile = new File(dir as File, 'pom.xml')
                         newFile.createNewFile()
                         Git.add(sandbox.context, dir, 'pom.xml')
-                        Git.commit(sandbox.context, dir, 'pom')                    }
+                        Git.commit(sandbox.context, dir, 'pom')
+                        return sandbox
+                    }
                 }
         ))
 

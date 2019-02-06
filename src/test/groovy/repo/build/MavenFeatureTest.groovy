@@ -1,6 +1,6 @@
 package repo.build
 
-import kotlin.Unit
+
 import kotlin.jvm.functions.Function2
 import org.apache.maven.shared.invoker.InvocationRequest
 import org.junit.Before
@@ -13,9 +13,9 @@ class MavenFeatureTest extends BaseTestCase {
         super.setUp()
         sandbox = new Sandbox(new RepoEnv(createTempDir()), options)
                 .newGitComponent('parent',
-                new SandboxClosure(new Function2<Sandbox, File, Unit>() {
+                new SandboxClosure(new Function2<Sandbox, File, Sandbox>() {
                     @Override
-                    Unit invoke(Sandbox sandbox, File dir) {
+                    Sandbox invoke(Sandbox sandbox, File dir) {
                         def ant = new AntBuilder()
                         ant.copy(todir: dir) {
                             fileset(dir: 'src/test/resources/parent') {
@@ -25,13 +25,14 @@ class MavenFeatureTest extends BaseTestCase {
                         Git.add(sandbox.context, dir, '*.*')
                         Git.commit(sandbox.context, dir, 'add')
                         Git.createBranch(sandbox.context, dir, 'feature/1')
+                        return sandbox
                     }
                 })
         )
                 .newGitComponent('parent2',
-                new SandboxClosure(new Function2<Sandbox, File, Unit>() {
+                new SandboxClosure(new Function2<Sandbox, File, Sandbox>() {
                     @Override
-                    Unit invoke(Sandbox sandbox, File dir) {
+                    Sandbox invoke(Sandbox sandbox, File dir) {
                         def ant = new AntBuilder()
                         ant.copy(todir: dir) {
                             fileset(dir: 'src/test/resources/parent2') {
@@ -41,12 +42,13 @@ class MavenFeatureTest extends BaseTestCase {
                         Git.add(sandbox.context, dir, '*.*')
                         Git.commit(sandbox.context, dir, 'add')
                         Git.createBranch(sandbox.context, dir, 'feature/1')
+                        return sandbox
                     }
                 }))
                 .newGitComponent('c1',
-                new SandboxClosure(new Function2<Sandbox, File, Unit>() {
+                new SandboxClosure(new Function2<Sandbox, File, Sandbox>() {
                     @Override
-                    Unit invoke(Sandbox sandbox, File dir) {
+                    Sandbox invoke(Sandbox sandbox, File dir) {
                         def ant = new AntBuilder()
                         ant.copy(todir: dir) {
                             fileset(dir: 'src/test/resources/c1') {
@@ -56,12 +58,13 @@ class MavenFeatureTest extends BaseTestCase {
                         Git.add(sandbox.context, dir, '*.*')
                         Git.commit(sandbox.context, dir, 'add')
                         Git.createBranch(sandbox.context, dir, 'feature/1')
+                        return sandbox
                     }
                 }))
                 .newGitComponent('c2',
-                new SandboxClosure(new Function2<Sandbox, File, Unit>() {
+                new SandboxClosure(new Function2<Sandbox, File, Sandbox>() {
                     @Override
-                    Unit invoke(Sandbox sandbox, File dir) {
+                    Sandbox invoke(Sandbox sandbox, File dir) {
                         def ant = new AntBuilder()
                         ant.copy(todir: dir) {
                             fileset(dir: 'src/test/resources/c2') {
@@ -71,12 +74,13 @@ class MavenFeatureTest extends BaseTestCase {
                         Git.add(sandbox.context, dir, '*.*')
                         Git.commit(sandbox.context, dir, 'add')
                         Git.createBranch(sandbox.context, dir, 'feature/1')
+                        return sandbox
                     }
                 }))
                 .newGitComponent('c3',
-                new SandboxClosure(new Function2<Sandbox, File, Unit>() {
+                new SandboxClosure(new Function2<Sandbox, File, Sandbox>() {
                     @Override
-                    Unit invoke(Sandbox sandbox, File dir) {
+                    Sandbox invoke(Sandbox sandbox, File dir) {
                         def ant = new AntBuilder()
                         ant.copy(todir: dir) {
                             fileset(dir: 'src/test/resources/c3') {
@@ -86,36 +90,39 @@ class MavenFeatureTest extends BaseTestCase {
                         Git.add(sandbox.context, dir, '*.*')
                         Git.commit(sandbox.context, dir, 'add')
                         Git.createBranch(sandbox.context, dir, 'feature/1')
+                        return sandbox
                     }
                 }))
                 .newGitComponent('c4',
-                new SandboxClosure(new Function2<Sandbox, File, Unit>() {
+                new SandboxClosure(new Function2<Sandbox, File, Sandbox>() {
                     @Override
-                    Unit invoke(Sandbox sandbox, File dir) {
-                    def ant = new AntBuilder()
-                    ant.copy(todir: dir) {
-                        fileset(dir: 'src/test/resources/c4') {
-                            include(name: '**/**')
+                    Sandbox invoke(Sandbox sandbox, File dir) {
+                        def ant = new AntBuilder()
+                        ant.copy(todir: dir) {
+                            fileset(dir: 'src/test/resources/c4') {
+                                include(name: '**/**')
+                            }
                         }
-                    }
-                    Git.add(sandbox.context, dir, '*.*')
-                    Git.commit(sandbox.context, dir, 'add')
-                    Git.createBranch(sandbox.context, dir, 'feature/1')
+                        Git.add(sandbox.context, dir, '*.*')
+                        Git.commit(sandbox.context, dir, 'add')
+                        Git.createBranch(sandbox.context, dir, 'feature/1')
+                        return sandbox
                     }
                 }))
                 .newGitComponent('manifest',
-                new SandboxClosure(new Function2<Sandbox, File, Unit>() {
+                new SandboxClosure(new Function2<Sandbox, File, Sandbox>() {
                     @Override
-                    Unit invoke(Sandbox sandbox, File dir) {
-                    sandbox.gitInitialCommit(dir)
-                    sandbox.buildManifest(dir)
-                    Git.add(sandbox.context, dir, 'default.xml')
-                    Git.commit(sandbox.context, dir, 'manifest')
+                    Sandbox invoke(Sandbox sandbox, File dir) {
+                        sandbox.gitInitialCommit(dir)
+                        sandbox.buildManifest(dir)
+                        Git.add(sandbox.context, dir, 'default.xml')
+                        Git.commit(sandbox.context, dir, 'manifest')
+                        return sandbox
                     }
                 }))
-                MavenFeature.purgeLocal(sandbox.context,
-                        'test.repo-build'
-                )
+        MavenFeature.purgeLocal(sandbox.context,
+                'test.repo-build'
+        )
 
     }
 
@@ -174,9 +181,9 @@ class MavenFeatureTest extends BaseTestCase {
 
     def updateInstallParent(String version) {
         sandbox.component("parent", new SandboxClosure(
-                new Function2<Sandbox, File, Unit>() {
+                new Function2<Sandbox, File, Sandbox>() {
                     @Override
-                    Unit invoke(Sandbox sandbox, File dir) {
+                    Sandbox invoke(Sandbox sandbox, File dir) {
                         Maven.execute(sandbox.context, new File(dir, 'pom.xml'),
                                 { InvocationRequest req ->
                                     req.setGoals(Arrays.asList("versions:set"))
@@ -188,7 +195,9 @@ class MavenFeatureTest extends BaseTestCase {
                                 }
                         )
                         Git.add(sandbox.context, dir, 'pom.xml')
-                        Git.commit(sandbox.context, dir, 'vup')                    }
+                        Git.commit(sandbox.context, dir, 'vup')
+                        return sandbox
+                    }
                 }
         ))
 
@@ -204,9 +213,9 @@ class MavenFeatureTest extends BaseTestCase {
         cleanInstallParent()
         // update c1 version to 1.1.0-SNAPSHOT on master
         sandbox.component("c1", new SandboxClosure(
-                new Function2<Sandbox, File, Unit>() {
+                new Function2<Sandbox, File, Sandbox>() {
                     @Override
-                    Unit invoke(Sandbox sandbox, File dir) {
+                    Sandbox invoke(Sandbox sandbox, File dir) {
                         Maven.execute(sandbox.context, new File(dir, 'pom.xml'),
                                 { InvocationRequest req ->
                                     req.setGoals(Arrays.asList("versions:set"))
@@ -218,14 +227,16 @@ class MavenFeatureTest extends BaseTestCase {
                                 }
                         )
                         Git.addUpdated(sandbox.context, dir)
-                        Git.commit(sandbox.context, dir, 'vup')                    }
+                        Git.commit(sandbox.context, dir, 'vup')
+                        return sandbox
+                    }
                 }
         ))
         // update c2 version to 2.1.0-SNAPSHOT on master
         sandbox.component("c2", new SandboxClosure(
-                new Function2<Sandbox, File, Unit>() {
+                new Function2<Sandbox, File, Sandbox>() {
                     @Override
-                    Unit invoke(Sandbox sandbox, File dir) {
+                    Sandbox invoke(Sandbox sandbox, File dir) {
                         Maven.execute(sandbox.context, new File(dir, 'pom.xml'),
                                 { InvocationRequest req ->
                                     req.setGoals(Arrays.asList("versions:set"))
@@ -238,6 +249,7 @@ class MavenFeatureTest extends BaseTestCase {
                         )
                         Git.addUpdated(sandbox.context, dir)
                         Git.commit(sandbox.context, dir, 'vup')
+                        return sandbox
                     }
                 }
         ))
@@ -264,9 +276,9 @@ class MavenFeatureTest extends BaseTestCase {
         cleanInstallParent()
         // update c1 version to 1.1.0-SNAPSHOT on master
         sandbox.component("c1", new SandboxClosure(
-                new Function2<Sandbox, File, Unit>() {
+                new Function2<Sandbox, File, Sandbox>() {
                     @Override
-                    Unit invoke(Sandbox sandbox, File dir) {
+                    Sandbox invoke(Sandbox sandbox, File dir) {
                         Maven.execute(sandbox.context, new File(dir, 'pom.xml'),
                                 { InvocationRequest req ->
                                     req.setGoals(Arrays.asList("versions:set"))
@@ -279,14 +291,15 @@ class MavenFeatureTest extends BaseTestCase {
                         )
                         Git.addUpdated(sandbox.context, dir)
                         Git.commit(sandbox.context, dir, 'vup')
+                        return sandbox
                     }
                 }
         ))
         // update c2 version to 2.1.0-SNAPSHOT on master
         sandbox.component("c2", new SandboxClosure(
-                new Function2<Sandbox, File, Unit>() {
+                new Function2<Sandbox, File, Sandbox>() {
                     @Override
-                    Unit invoke(Sandbox sandbox, File dir) {
+                    Sandbox invoke(Sandbox sandbox, File dir) {
                         Maven.execute(sandbox.context, new File(dir, 'pom.xml'),
                                 { InvocationRequest req ->
                                     req.setGoals(Arrays.asList("versions:set"))
@@ -299,6 +312,7 @@ class MavenFeatureTest extends BaseTestCase {
                         )
                         Git.addUpdated(sandbox.context, dir)
                         Git.commit(sandbox.context, dir, 'vup')
+                        return sandbox
                     }
                 }
         ))
@@ -312,15 +326,16 @@ class MavenFeatureTest extends BaseTestCase {
         MavenFeature.updateVersions(context, 'feature/1', 'test.repo-build:*', null, true)
 
         sandbox.component("c1", new SandboxClosure(
-                new Function2<Sandbox, File, Unit>() {
+                new Function2<Sandbox, File, Sandbox>() {
                     @Override
-                    Unit invoke(Sandbox sandbox, File dir) {
+                    Sandbox invoke(Sandbox sandbox, File dir) {
                         Maven.execute(sandbox.context, new File(dir, 'pom.xml'),
                                 { InvocationRequest req ->
                                     req.setGoals(Arrays.asList("clean"))
                                     req.setInteractive(false)
                                 }
                         )
+                        return sandbox
                     }
                 }
         ))
@@ -339,9 +354,9 @@ class MavenFeatureTest extends BaseTestCase {
     private Sandbox cleanInstallParent() {
 
         sandbox.component("parent", new SandboxClosure(
-                new Function2<Sandbox, File, Unit>() {
+                new Function2<Sandbox, File, Sandbox>() {
                     @Override
-                    Unit invoke(Sandbox sandbox, File dir) {
+                    Sandbox invoke(Sandbox sandbox, File dir) {
                         Maven.execute(sandbox.context, new File(dir, 'pom.xml'),
                                 { InvocationRequest req ->
                                     req.setGoals(Arrays.asList('clean', 'install'))
@@ -350,7 +365,9 @@ class MavenFeatureTest extends BaseTestCase {
                                     properties.put('skipTests', 'true')
                                     req.setProperties(properties)
                                 }
-                        )                    }
+                        )
+                        return sandbox
+                    }
                 }
         ))
     }
@@ -444,9 +461,9 @@ class MavenFeatureTest extends BaseTestCase {
         def url = new File(sandbox.env.basedir, 'manifest')
 
         sandbox.component("c1", new SandboxClosure(
-                new Function2<Sandbox, File, Unit>() {
+                new Function2<Sandbox, File, Sandbox>() {
                     @Override
-                    Unit invoke(Sandbox sandbox, File dir) {
+                    Sandbox invoke(Sandbox sandbox, File dir) {
                         Git.checkout(sandbox.context, dir, "feature/1")
                         def ant = new AntBuilder()
                         ant.copy(todir: dir, overwrite: true) {
@@ -456,7 +473,7 @@ class MavenFeatureTest extends BaseTestCase {
                         }
                         Git.add(sandbox.context, dir, '*.*')
                         Git.commit(sandbox.context, dir, 'add')
-
+                        return sandbox
                     }
                 }
         ))

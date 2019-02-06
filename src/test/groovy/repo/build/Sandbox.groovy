@@ -1,6 +1,7 @@
 package repo.build
 
 import groovy.xml.MarkupBuilder
+import kotlin.jvm.functions.Function2
 
 /**
  */
@@ -32,12 +33,16 @@ class Sandbox {
     }
 
     Sandbox newGitComponent(String component) {
-        def dir = new File(env.basedir, component)
-        dir.mkdirs()
-        Git.init(context, dir)
-        Git.user(context, dir, "you@example.com", "Your Name")
-        return gitInitialCommit(dir)
+        def func = new SandboxClosure(new Function2<Sandbox, File, Sandbox>() {
+            @Override
+            Sandbox invoke(Sandbox sandbox, File dir) {
+                sandbox.gitInitialCommit(dir)
+                return sandbox
+            }
+        })
+        return newGitComponent(component, func)
     }
+
 
     Sandbox gitInitialCommit(File dir) {
         def readme = new File(dir, "README.md")

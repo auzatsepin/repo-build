@@ -3,10 +3,10 @@ package repo.build
 import java.io.File
 
 
-class SandboxClosure(val action: (Sandbox, File) -> Unit) {
+class SandboxClosure(val action: (Sandbox, File?) -> Sandbox) {
 
-    operator fun invoke(sandbox: Sandbox, dir: File) {
-        action(sandbox, dir)
+    operator fun invoke(sandbox: Sandbox, dir: File?): Sandbox {
+        return action(sandbox, dir)
     }
 
 }
