@@ -173,22 +173,24 @@ class MavenFeatureTest extends BaseTestCase {
     }
 
     def updateInstallParent(String version) {
-        // update parent version to 1.1.0-SNAPSHOT on master
-        sandbox.component('parent',
-                { Sandbox sandbox, File dir ->
-                    Maven.execute(sandbox.context, new File(dir, 'pom.xml'),
-                            { InvocationRequest req ->
-                                req.setGoals(Arrays.asList("versions:set"))
-                                req.setInteractive(false)
-                                Properties properties = new Properties()
-                                properties.put("newVersion", version)
-                                properties.put('generateBackupPoms', 'false')
-                                req.setProperties(properties)
-                            }
-                    )
-                    Git.add(sandbox.context, dir, 'pom.xml')
-                    Git.commit(sandbox.context, dir, 'vup')
-                })
+        sandbox.component("parent", new SandboxClosure(
+                new Function2<Sandbox, File, Unit>() {
+                    @Override
+                    Unit invoke(Sandbox sandbox, File dir) {
+                        Maven.execute(sandbox.context, new File(dir, 'pom.xml'),
+                                { InvocationRequest req ->
+                                    req.setGoals(Arrays.asList("versions:set"))
+                                    req.setInteractive(false)
+                                    Properties properties = new Properties()
+                                    properties.put("newVersion", version)
+                                    properties.put('generateBackupPoms', 'false')
+                                    req.setProperties(properties)
+                                }
+                        )
+                        Git.add(sandbox.context, dir, 'pom.xml')
+                        Git.commit(sandbox.context, dir, 'vup')                    }
+                }
+        ))
 
         cleanInstallParent()
     }
@@ -201,37 +203,44 @@ class MavenFeatureTest extends BaseTestCase {
         // execute parent
         cleanInstallParent()
         // update c1 version to 1.1.0-SNAPSHOT on master
-        sandbox.component('c1',
-                { Sandbox sandbox, File dir ->
-                    Maven.execute(sandbox.context, new File(dir, 'pom.xml'),
-                            { InvocationRequest req ->
-                                req.setGoals(Arrays.asList("versions:set"))
-                                req.setInteractive(false)
-                                Properties properties = new Properties()
-                                properties.put("newVersion", '1.1.0-SNAPSHOT')
-                                properties.put('generateBackupPoms', 'false')
-                                req.setProperties(properties)
-                            }
-                    )
-                    Git.addUpdated(sandbox.context, dir)
-                    Git.commit(sandbox.context, dir, 'vup')
-                })
+        sandbox.component("c1", new SandboxClosure(
+                new Function2<Sandbox, File, Unit>() {
+                    @Override
+                    Unit invoke(Sandbox sandbox, File dir) {
+                        Maven.execute(sandbox.context, new File(dir, 'pom.xml'),
+                                { InvocationRequest req ->
+                                    req.setGoals(Arrays.asList("versions:set"))
+                                    req.setInteractive(false)
+                                    Properties properties = new Properties()
+                                    properties.put("newVersion", '1.1.0-SNAPSHOT')
+                                    properties.put('generateBackupPoms', 'false')
+                                    req.setProperties(properties)
+                                }
+                        )
+                        Git.addUpdated(sandbox.context, dir)
+                        Git.commit(sandbox.context, dir, 'vup')                    }
+                }
+        ))
         // update c2 version to 2.1.0-SNAPSHOT on master
-        sandbox.component('c2',
-                { Sandbox sandbox, File dir ->
-                    Maven.execute(sandbox.context, new File(dir, 'pom.xml'),
-                            { InvocationRequest req ->
-                                req.setGoals(Arrays.asList("versions:set"))
-                                req.setInteractive(false)
-                                Properties properties = new Properties()
-                                properties.put("newVersion", '2.1.0-SNAPSHOT')
-                                properties.put('generateBackupPoms', 'false')
-                                req.setProperties(properties)
-                            }
-                    )
-                    Git.addUpdated(sandbox.context, dir)
-                    Git.commit(sandbox.context, dir, 'vup')
-                })
+        sandbox.component("c2", new SandboxClosure(
+                new Function2<Sandbox, File, Unit>() {
+                    @Override
+                    Unit invoke(Sandbox sandbox, File dir) {
+                        Maven.execute(sandbox.context, new File(dir, 'pom.xml'),
+                                { InvocationRequest req ->
+                                    req.setGoals(Arrays.asList("versions:set"))
+                                    req.setInteractive(false)
+                                    Properties properties = new Properties()
+                                    properties.put("newVersion", '2.1.0-SNAPSHOT')
+                                    properties.put('generateBackupPoms', 'false')
+                                    req.setProperties(properties)
+                                }
+                        )
+                        Git.addUpdated(sandbox.context, dir)
+                        Git.commit(sandbox.context, dir, 'vup')
+                    }
+                }
+        ))
 
         GitFeature.sync(context)
         GitFeature.switch(context, 'feature/1')
@@ -254,37 +263,45 @@ class MavenFeatureTest extends BaseTestCase {
         // execute parent
         cleanInstallParent()
         // update c1 version to 1.1.0-SNAPSHOT on master
-        sandbox.component('c1',
-                { Sandbox sandbox, File dir ->
-                    Maven.execute(sandbox.context, new File(dir, 'pom.xml'),
-                            { InvocationRequest req ->
-                                req.setGoals(Arrays.asList("versions:set"))
-                                req.setInteractive(false)
-                                Properties properties = new Properties()
-                                properties.put("newVersion", '1.1.0-SNAPSHOT')
-                                properties.put('generateBackupPoms', 'false')
-                                req.setProperties(properties)
-                            }
-                    )
-                    Git.addUpdated(sandbox.context, dir)
-                    Git.commit(sandbox.context, dir, 'vup')
-                })
+        sandbox.component("c1", new SandboxClosure(
+                new Function2<Sandbox, File, Unit>() {
+                    @Override
+                    Unit invoke(Sandbox sandbox, File dir) {
+                        Maven.execute(sandbox.context, new File(dir, 'pom.xml'),
+                                { InvocationRequest req ->
+                                    req.setGoals(Arrays.asList("versions:set"))
+                                    req.setInteractive(false)
+                                    Properties properties = new Properties()
+                                    properties.put("newVersion", '1.1.0-SNAPSHOT')
+                                    properties.put('generateBackupPoms', 'false')
+                                    req.setProperties(properties)
+                                }
+                        )
+                        Git.addUpdated(sandbox.context, dir)
+                        Git.commit(sandbox.context, dir, 'vup')
+                    }
+                }
+        ))
         // update c2 version to 2.1.0-SNAPSHOT on master
-        sandbox.component('c2',
-                { Sandbox sandbox, File dir ->
-                    Maven.execute(sandbox.context, new File(dir, 'pom.xml'),
-                            { InvocationRequest req ->
-                                req.setGoals(Arrays.asList("versions:set"))
-                                req.setInteractive(false)
-                                Properties properties = new Properties()
-                                properties.put("newVersion", '2.1.0-SNAPSHOT')
-                                properties.put('generateBackupPoms', 'false')
-                                req.setProperties(properties)
-                            }
-                    )
-                    Git.addUpdated(sandbox.context, dir)
-                    Git.commit(sandbox.context, dir, 'vup')
-                })
+        sandbox.component("c2", new SandboxClosure(
+                new Function2<Sandbox, File, Unit>() {
+                    @Override
+                    Unit invoke(Sandbox sandbox, File dir) {
+                        Maven.execute(sandbox.context, new File(dir, 'pom.xml'),
+                                { InvocationRequest req ->
+                                    req.setGoals(Arrays.asList("versions:set"))
+                                    req.setInteractive(false)
+                                    Properties properties = new Properties()
+                                    properties.put("newVersion", '2.1.0-SNAPSHOT')
+                                    properties.put('generateBackupPoms', 'false')
+                                    req.setProperties(properties)
+                                }
+                        )
+                        Git.addUpdated(sandbox.context, dir)
+                        Git.commit(sandbox.context, dir, 'vup')
+                    }
+                }
+        ))
 
         GitFeature.sync(context)
         GitFeature.switch(context, 'feature/1')
@@ -294,15 +311,19 @@ class MavenFeatureTest extends BaseTestCase {
 
         MavenFeature.updateVersions(context, 'feature/1', 'test.repo-build:*', null, true)
 
-        sandbox.component('c1',
-                { Sandbox sandbox, File dir ->
-                    Maven.execute(sandbox.context, new File(dir, 'pom.xml'),
-                            { InvocationRequest req ->
-                                req.setGoals(Arrays.asList("clean"))
-                                req.setInteractive(false)
-                            }
-                    )
-                })
+        sandbox.component("c1", new SandboxClosure(
+                new Function2<Sandbox, File, Unit>() {
+                    @Override
+                    Unit invoke(Sandbox sandbox, File dir) {
+                        Maven.execute(sandbox.context, new File(dir, 'pom.xml'),
+                                { InvocationRequest req ->
+                                    req.setGoals(Arrays.asList("clean"))
+                                    req.setInteractive(false)
+                                }
+                        )
+                    }
+                }
+        ))
 
         MavenFeature.updateVersions(context, 'feature/1', 'test.repo-execute:*', 'c2', true)
 
@@ -316,18 +337,22 @@ class MavenFeatureTest extends BaseTestCase {
     }
 
     private Sandbox cleanInstallParent() {
-        sandbox.component('parent',
-                { Sandbox sandbox, File dir ->
-                    Maven.execute(sandbox.context, new File(dir, 'pom.xml'),
-                            { InvocationRequest req ->
-                                req.setGoals(Arrays.asList('clean', 'install'))
-                                req.setInteractive(false)
-                                Properties properties = new Properties()
-                                properties.put('skipTests', 'true')
-                                req.setProperties(properties)
-                            }
-                    )
-                })
+
+        sandbox.component("parent", new SandboxClosure(
+                new Function2<Sandbox, File, Unit>() {
+                    @Override
+                    Unit invoke(Sandbox sandbox, File dir) {
+                        Maven.execute(sandbox.context, new File(dir, 'pom.xml'),
+                                { InvocationRequest req ->
+                                    req.setGoals(Arrays.asList('clean', 'install'))
+                                    req.setInteractive(false)
+                                    Properties properties = new Properties()
+                                    properties.put('skipTests', 'true')
+                                    req.setProperties(properties)
+                                }
+                        )                    }
+                }
+        ))
     }
 
     @Test
@@ -418,18 +443,23 @@ class MavenFeatureTest extends BaseTestCase {
     void testBuildParallelCircularDepsFail() {
         def url = new File(sandbox.env.basedir, 'manifest')
 
-        sandbox.component('c1',
-                { Sandbox sandbox, File dir ->
-                    Git.checkout(sandbox.context, dir, "feature/1")
-                    def ant = new AntBuilder()
-                    ant.copy(todir: dir, overwrite: true) {
-                        fileset(dir: 'src/test/resources/circular/c1') {
-                            include(name: '**/**')
+        sandbox.component("c1", new SandboxClosure(
+                new Function2<Sandbox, File, Unit>() {
+                    @Override
+                    Unit invoke(Sandbox sandbox, File dir) {
+                        Git.checkout(sandbox.context, dir, "feature/1")
+                        def ant = new AntBuilder()
+                        ant.copy(todir: dir, overwrite: true) {
+                            fileset(dir: 'src/test/resources/circular/c1') {
+                                include(name: '**/**')
+                            }
                         }
+                        Git.add(sandbox.context, dir, '*.*')
+                        Git.commit(sandbox.context, dir, 'add')
+
                     }
-                    Git.add(sandbox.context, dir, '*.*')
-                    Git.commit(sandbox.context, dir, 'add')
-                })
+                }
+        ))
 
         GitFeature.cloneManifest(context, url.getAbsolutePath(), 'master')
         GitFeature.sync(context)

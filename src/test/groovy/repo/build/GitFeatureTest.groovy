@@ -2,6 +2,8 @@ package repo.build
 
 import com.google.common.io.Files
 import groovy.xml.XmlUtil
+import kotlin.Unit
+import kotlin.jvm.functions.Function2
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -22,13 +24,17 @@ class GitFeatureTest extends BaseTestCase {
         sandbox = new Sandbox(new RepoEnv(createTempDir()), options)
                 .newGitComponent('c1')
                 .newGitComponent('c2')
-                .newGitComponent('manifest',
-                { Sandbox sandbox, File dir ->
-                    sandbox.gitInitialCommit(dir)
-                    sandbox.buildManifest(dir)
-                    Git.add(sandbox.context, dir, 'default.xml')
-                    Git.commit(sandbox.context, dir, 'manifest')
-                })
+                .newGitComponent('manifest', new SandboxClosure(
+                new Function2<Sandbox, File, Unit>() {
+                    @Override
+                    Unit invoke(Sandbox sandbox, File dir) {
+                        sandbox.gitInitialCommit(dir)
+                        sandbox.buildManifest(dir)
+                        Git.add(sandbox.context, dir, 'default.xml')
+                        Git.commit(sandbox.context, dir, 'manifest')
+                    }
+                }
+        ))
     }
 
     @Test
@@ -727,6 +733,7 @@ class GitFeatureTest extends BaseTestCase {
         RepoManifest.forEach(sandbox.context, { ActionContext actionContext, Node project ->
             commits.add(Git.getLastCommit(actionContext, new File(sandbox.env.basedir, project.@path)))
         })
+
         assertEquals(2, commits.size())
     }
 

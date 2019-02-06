@@ -42,25 +42,17 @@ class PomTest extends BaseTestCase {
 
     @Test
     void testBuildPomHasModules() {
-/*        sandbox.component('c1',
-                { Sandbox sandbox, File dir ->
-                    def newFile = new File(dir, 'pom.xml')
-                    newFile.createNewFile()
-                    Git.add(sandbox.context, dir, 'pom.xml')
-                    Git.commit(sandbox.context, dir, 'pom')
-                } as SandboxClosure)*/
 
-        sandbox.component('c1',
-                new SandboxClosure(new Function2<Sandbox, File, Unit>() {
+        sandbox.component("c1", new SandboxClosure(
+                new Function2<Sandbox, File, Unit>() {
                     @Override
                     Unit invoke(Sandbox sandbox, File dir) {
                         def newFile = new File(dir, 'pom.xml')
                         newFile.createNewFile()
                         Git.add(sandbox.context, dir, 'pom.xml')
-                        Git.commit(sandbox.context, dir, 'pom')
-                    }
-                })
-        )
+                        Git.commit(sandbox.context, dir, 'pom')                    }
+                }
+        ))
 
         def url = new File(sandbox.env.basedir, 'manifest')
         GitFeature.cloneManifest(context, url.getAbsolutePath(), 'master')
