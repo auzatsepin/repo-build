@@ -1,7 +1,9 @@
 package repo.build
 
 import java.io.File
-
+import java.io.FileWriter
+import java.nio.file.Files
+import java.nio.file.Paths
 
 class SandboxClosure(val action: (Sandbox, File?) -> Sandbox) {
 
@@ -11,21 +13,19 @@ class SandboxClosure(val action: (Sandbox, File?) -> Sandbox) {
 
 }
 
-/*
-import org.redundent.kotlin.xml.xml
-import java.io.File
-import java.io.FileWriter
-import java.nio.file.Files
-import java.nio.file.Paths
+typealias SandboxAction = (SandboxKt, File) -> SandboxKt
 
-typealias SandboxAction = (SandboxKt, File) -> Unit
+class SandboxKt {
 
-class SandboxKt*/
-/*(private val env: RepoEnv,
-                private val options: CliOptions,
-                private val components: MutableMap<String, File> = mutableMapOf(),
-                private val context = ActionContext(env, null, options, new DefaultActionHandler()))*//*
- {
+    val env: RepoEnv
+    private val components: MutableMap<String, File>
+    val context: ActionContext
+
+    constructor(env: RepoEnv, options: CliOptions) {
+        this.env = env
+        this.components = mutableMapOf()
+        this.context = ActionContext(env, null, options, DefaultActionHandler())
+    }
 
     fun newGitComponent(component: String, action: SandboxAction): SandboxKt {
         val dir = File(env.basedir, component)
@@ -38,7 +38,7 @@ class SandboxKt*/
     }
 
     fun newGitComponent(component: String): SandboxKt {
-        return newGitComponent(component) { sandboxKt, dir -> sandboxKt.gitInitialCommit(dir) }
+        return newGitComponent(component, action = { sandboxKt, dir -> sandboxKt.gitInitialCommit(dir) })
     }
 
     fun component(component: String, action: SandboxAction): SandboxKt {
@@ -56,35 +56,18 @@ class SandboxKt*/
     }
 
     fun buildManifest(dir: File) {
-        val manifest = xml("manifest") {
-            "remote" {
-                attributes(
-                        "name" to "origin",
-                        "fetch" to dir.parentFile.absoluteFile
-                )
-            }
-            "default" {
-                attributes(
-                        "revision" to "refs/heads/develop",
-                        "remote" to "origin",
-                        "sync" to 1
-                )
-            }
-            components.forEach {
-                "project" {
-                    attributes(
-                            "name" to it.key,
-                            "remote" to "origin",
-                            "path" to it.key,
-                            "revision" to "refs/heads/master"
-                    )
+        //todo xml writer with pretty print, like data class for gson/jackson
+        val manifest = """
+            |<manifest>
+            |    <remote name='origin' fetch='${dir.parentFile.absolutePath}' />
+            |    <default revision='refs/heads/develop' remote='origin' sync='1' />
+            |    ${components.map { "<project name='${it.key}' remote='origin' path='${it.key}' revision='refs/heads/master' />" }.joinToString("\n")}
+            |</manifest>
+        """.trimMargin("|")
+        val fileWriter = FileWriter(File(dir, "default.xml"))
+        fileWriter.write(manifest)
+        fileWriter.close()
 
-                }
-            }
-        }
-        FileWriter(File(dir, "default.xml")).use {
-            manifest.toString(true)
-        }
     }
 
     fun changeDefaultBranchComponentOnManifest(manifestDir: File, component: String, defaultBranch: String): SandboxKt {
@@ -98,4 +81,4 @@ class SandboxKt*/
         return this
     }
 
-}*/
+}

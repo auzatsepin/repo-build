@@ -21,17 +21,25 @@ class ActionContext implements Closeable {
     final List<RepoBuildException> errorList = new ArrayList<>()
     boolean errorFlag = false
 
-    ActionContext(RepoEnv env, String id, CliOptions options, ActionHandler actionHandler1,
-                  Map<String, List<OutputFilter>> outputFilter = new HashMap<>()) {
+    ActionContext(RepoEnv env, String id, CliOptions options, ActionHandler actionHandler) {
         this.env = env
         this.id = id
         this.options = options
-        this.actionHandler = actionHandler1
+        this.actionHandler = actionHandler
+        this.outputFilter.putAll(new HashMap<String, List<OutputFilter>>())
+    }
+
+    ActionContext(RepoEnv env, String id, CliOptions options, ActionHandler actionHandler,
+                  Map<String, List<OutputFilter>> outputFilter) {
+        this.env = env
+        this.id = id
+        this.options = options
+        this.actionHandler = actionHandler
         this.outputFilter.putAll(outputFilter)
     }
 
     private ActionContext(ActionContext parent, String id) {
-        this(parent.env, id, parent.options, parent.actionHandler, parent.outputFilter)
+        this(parent.env, id, parent.options, parent.actionHandler)
         this.parent = parent
     }
 
