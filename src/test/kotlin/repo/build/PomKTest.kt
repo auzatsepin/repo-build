@@ -1,15 +1,18 @@
 package repo.build
 
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import java.io.File
+import java.io.FileReader
 
-class PomKTest : BaseTestCase() {
+class PomKTest : BaseTestCaseKt() {
 
     @Before
     fun `set up`() {
         super.setUp()
-        sandboxKt = SandboxKt(RepoEnv(createTempDir()), options)
+        sandbox = SandboxKt(RepoEnv(createTempDir()), options)
                 .newGitComponent("c1")
                 .newGitComponent("c2")
                 .newGitComponent("manifest") { sandbox, dir ->
@@ -24,20 +27,20 @@ class PomKTest : BaseTestCase() {
 
     @Test
     fun `should not found module in pom file`() {
-        val url = File(sandboxKt.env.basedir, "manifest")
+        val url = File(sandbox.env.basedir, "manifest")
         GitFeature.cloneManifest(context, url.absolutePath, "master")
         GitFeature.sync(context)
 
-        val pomFile = File(sandboxKt.env.basedir, "pom.xml")
+        val pomFile = File(sandbox.env.basedir, "pom.xml")
         Pom.generateXml(context, "master", pomFile)
         assertTrue(pomFile.exists())
-        //todo jackson support for pom
-        //assertEquals(0, pom.project.modules.module.findAll().size)
+        val model = mavenReader.read(FileReader(pomFile))
+        assertEquals(0, model.modules.size)
     }
 
     @Test
     fun `should found modules in pom file`() {
-        sandboxKt.component("c1") {sandbox, dir ->
+        sandbox.component("c1") {sandbox, dir ->
             val newFile = File(dir, "pom.xml")
             newFile.createNewFile()
             Git.add(sandbox.context, dir, "pom.xml")
@@ -45,15 +48,15 @@ class PomKTest : BaseTestCase() {
             sandbox
         }
 
-        val url = File(sandboxKt.env.basedir, "manifest")
+        val url = File(sandbox.env.basedir, "manifest")
         GitFeature.cloneManifest(context, url.absolutePath, "master")
         GitFeature.sync(context)
 
-        val pomFile = File(sandboxKt.env.basedir, "pom.xml")
+        val pomFile = File(sandbox.env.basedir, "pom.xml")
         Pom.generateXml(context, "master", pomFile)
         assertTrue(pomFile.exists())
-        //todo jackson support for pom
-        //assertEquals(1, pom.modules.module.findAll().size)
+        val model = mavenReader.read(FileReader(pomFile))
+        assertEquals(1, model.modules.size)
     }
 
 }
