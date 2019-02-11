@@ -317,7 +317,6 @@ class GitFeature {
                         def remoteName = RepoManifest.getRemoteName(actionContext)
                         def remoteBranch = "$remoteName/$branch"
                         Git.status(actionContext, dir)
-                        def unpushed
                         if (Git.branchPresent(actionContext, dir, remoteBranch)) {
                             Git.logUnpushed(actionContext, dir, remoteBranch)
                         } else {
@@ -325,8 +324,8 @@ class GitFeature {
                             if (Git.branchPresent(actionContext, dir, remoteBranch)) {
                                 Git.logUnpushed(actionContext, dir, remoteBranch)
                             } else {
-                                unpushed = "Branch not pushed"
-                                actionContext.writeOut(unpushed + '\n')
+                                def unpushed = "Branch not pushed"
+                                actionContext.writeOut(unpushed)
                             }
                         }
                     }

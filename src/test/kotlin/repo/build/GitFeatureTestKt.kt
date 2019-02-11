@@ -265,6 +265,7 @@ class GitFeatureTestKt : BaseTestCaseKt() {
 
         GitFeature.status(context)
         val splitedOutput = outputCapture.toString().split("\n")
+        assertEquals(9, splitedOutput.size)
         assertEquals("should contain 1 c1", 1,
                 getByValueFromOutput("c1", splitedOutput).size)
         assertEquals("should contain 2 master branch", 2,
@@ -325,14 +326,16 @@ class GitFeatureTestKt : BaseTestCaseKt() {
 
         GitFeature.status(context)
         val splitedOutput = outputCapture.toString().split("\n")
+        assertEquals(9, splitedOutput.size)
         assertEquals("should contain 1 c1", 1,
                 getByValueFromOutput("c1", splitedOutput).size)
         assertEquals("should contain 1 master branch", 1,
                 getByValueFromOutput("master", splitedOutput).size)
         assertEquals("should contain new file", 1,
                 getByValueFromOutput("?? new", splitedOutput).size)
-        assertEquals("should contain 1 c2 ", 1,
-                getByValueFromOutput("c2", splitedOutput).size)
+        assertEquals("should contain 1 c2 ", 1, getByValueFromOutput("c2", splitedOutput).size)
+        assertEquals("should contain 1 empty string", 2,
+                getByValueFromOutput("", splitedOutput).size)
         assertEquals("should contain 1 remote ref repository name", 1,
                 containsValueFromFromOutput("refs/remotes/origin/master", splitedOutput).size)
         assertEquals("should contain 1 Branch not pushed", 1,
@@ -340,12 +343,13 @@ class GitFeatureTestKt : BaseTestCaseKt() {
 
         outputCapture.reset()
 
-        val predicates = mutableListOf<OutputFilter>()
+        val predicates = arrayListOf<OutputFilter>()
         predicates.add(UnpushedStatusFilter())
-        context.outputFilter[GitFeature.ACTION_STATUS] = predicates
+        context.outputFilter.put(GitFeature.ACTION_STATUS, predicates)
         GitFeature.status(context)
 
         val splitedOutput1 = outputCapture.toString().split("\n")
+        assertEquals(5, splitedOutput1.size)
         assertEquals("should contain 1 c1", 1,
                 getByValueFromOutput("c1", splitedOutput1).size)
         assertEquals("should contain 1 newBranch", 1,
@@ -706,12 +710,12 @@ class GitFeatureTestKt : BaseTestCaseKt() {
         context.env.openManifest()
         GitFeature.cloneOrUpdateFromBundles(context, bundleDir)
 
-        assertTrue(File(context.env.basedir, "manifest").isDirectory)
-        assertTrue(File(context.env.basedir, "c1").isDirectory)
-        assertTrue(File(context.env.basedir, "c2").isDirectory)
-        assertEquals("1.5", Git.getBranch(context, File(context.env.basedir, "manifest")))
-        assertEquals("1.0", Git.getBranch(context, File(context.env.basedir, "c1")))
-        assertEquals("1.5", Git.getBranch(context, File(context.env.basedir, "c2")))
+        assertTrue(File (context.env.basedir, "manifest").isDirectory)
+        assertTrue(File (context.env.basedir, "c1").isDirectory)
+        assertTrue(File (context.env.basedir, "c2").isDirectory)
+        assertEquals("1.5", Git.getBranch(context, File (context.env.basedir, "manifest")))
+        assertEquals("1.0", Git.getBranch(context, File (context.env.basedir, "c1")))
+        assertEquals("1.5", Git.getBranch(context, File (context.env.basedir, "c2")))
     }
 
     @Ignore //todo should rewrite main code

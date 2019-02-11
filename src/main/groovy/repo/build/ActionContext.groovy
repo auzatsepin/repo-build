@@ -39,7 +39,7 @@ class ActionContext implements Closeable {
     }
 
     private ActionContext(ActionContext parent, String id) {
-        this(parent.env, id, parent.options, parent.actionHandler)
+        this(parent.env, id, parent.options, parent.actionHandler, parent.outputFilter)
         this.parent = parent
     }
 

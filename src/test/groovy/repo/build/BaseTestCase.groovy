@@ -9,7 +9,6 @@ import groovy.test.GroovyAssert
 /**
  */
 abstract class BaseTestCase extends GroovyAssert {
-    protected SandboxKt sandboxKt
     protected Sandbox sandbox
     protected RepoEnv env
     protected ActionContext context

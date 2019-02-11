@@ -43,7 +43,6 @@ class Sandbox {
         return newGitComponent(component, func)
     }
 
-
     Sandbox gitInitialCommit(File dir) {
         def readme = new File(dir, "README.md")
         readme.createNewFile()

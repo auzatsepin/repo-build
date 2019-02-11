@@ -86,7 +86,7 @@ class ExecuteProcess {
             Thread.sleep(100L)
 
             if (checkErrorCode && exitValue != 0) {
-                throw new RepoBuildException("name '$cmd' has exit code $exitValue");
+                throw new RepoBuildException("name '$cmd' has exit code $exitValue")
             }
             return writer.buffer.toString()
         }
