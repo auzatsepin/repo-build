@@ -325,7 +325,7 @@ class GitFeature {
                                 Git.logUnpushed(actionContext, dir, remoteBranch)
                             } else {
                                 def unpushed = "Branch not pushed"
-                                actionContext.writeOut(unpushed)
+                                actionContext.writeOut(unpushed + '\n')
                             }
                         }
                     }

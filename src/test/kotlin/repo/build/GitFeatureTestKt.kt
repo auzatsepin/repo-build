@@ -264,7 +264,11 @@ class GitFeatureTestKt : BaseTestCaseKt() {
         outputCapture.reset()
 
         GitFeature.status(context)
-        val splitedOutput = outputCapture.toString().split("\n")
+        val splitedOutput = outputCapture
+                .toString()
+                .split("\n")
+                .dropLastWhile { it.isEmpty() }
+
         assertEquals(9, splitedOutput.size)
         assertEquals("should contain 1 c1", 1,
                 getByValueFromOutput("c1", splitedOutput).size)
@@ -287,7 +291,10 @@ class GitFeatureTestKt : BaseTestCaseKt() {
         predicates.add(UnpushedStatusFilter())
         context.outputFilter[GitFeature.ACTION_STATUS] = predicates
         GitFeature.status(context)
-        val splitedOutput1 = outputCapture.toString().split("\n")
+        val splitedOutput1 = outputCapture
+                .toString()
+                .split("\n")
+                .dropLastWhile { it.isEmpty() }
 
         assertEquals(5, splitedOutput1.size)
         assertEquals("should contain 1 c1", 1,
@@ -325,7 +332,10 @@ class GitFeatureTestKt : BaseTestCaseKt() {
         outputCapture.reset()
 
         GitFeature.status(context)
-        val splitedOutput = outputCapture.toString().split("\n")
+        val splitedOutput = outputCapture
+                .toString()
+                .split("\n")
+                .dropLastWhile { it.isEmpty() }
         assertEquals(9, splitedOutput.size)
         assertEquals("should contain 1 c1", 1,
                 getByValueFromOutput("c1", splitedOutput).size)
@@ -348,7 +358,10 @@ class GitFeatureTestKt : BaseTestCaseKt() {
         context.outputFilter.put(GitFeature.ACTION_STATUS, predicates)
         GitFeature.status(context)
 
-        val splitedOutput1 = outputCapture.toString().split("\n")
+        val splitedOutput1 = outputCapture
+                .toString()
+                .split("\n")
+                .dropLastWhile { it.isEmpty() }
         assertEquals(5, splitedOutput1.size)
         assertEquals("should contain 1 c1", 1,
                 getByValueFromOutput("c1", splitedOutput1).size)
@@ -710,12 +723,12 @@ class GitFeatureTestKt : BaseTestCaseKt() {
         context.env.openManifest()
         GitFeature.cloneOrUpdateFromBundles(context, bundleDir)
 
-        assertTrue(File (context.env.basedir, "manifest").isDirectory)
-        assertTrue(File (context.env.basedir, "c1").isDirectory)
-        assertTrue(File (context.env.basedir, "c2").isDirectory)
-        assertEquals("1.5", Git.getBranch(context, File (context.env.basedir, "manifest")))
-        assertEquals("1.0", Git.getBranch(context, File (context.env.basedir, "c1")))
-        assertEquals("1.5", Git.getBranch(context, File (context.env.basedir, "c2")))
+        assertTrue(File(context.env.basedir, "manifest").isDirectory)
+        assertTrue(File(context.env.basedir, "c1").isDirectory)
+        assertTrue(File(context.env.basedir, "c2").isDirectory)
+        assertEquals("1.5", Git.getBranch(context, File(context.env.basedir, "manifest")))
+        assertEquals("1.0", Git.getBranch(context, File(context.env.basedir, "c1")))
+        assertEquals("1.5", Git.getBranch(context, File(context.env.basedir, "c2")))
     }
 
     @Ignore //todo should rewrite main code
