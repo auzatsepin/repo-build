@@ -123,19 +123,20 @@ class GitFeatureTestKt : BaseTestCaseKt() {
         GitFeature.cloneManifest(context, url.absolutePath, "master")
 
         sandbox.component("c1") { sandbox, dir ->
-            Git.createBranch(sandbox.context, dir, "feature/1")
-            Git.createBranch(sandbox.context, dir, "task/1")
+            Git.createBranch(sandbox.context, dir, "feature/project-2000")
+            Git.createBranch(sandbox.context, dir, "project-2000")
             sandbox
         }
 
         sandbox.component("c2") { sandbox, dir ->
-            Git.createBranch(sandbox.context, dir, "feature/1")
+            Git.createBranch(sandbox.context, dir, "feature/project-2000")
             sandbox
         }
 
         GitFeature.sync(context)
-        GitFeature.switch(context, "feature/1", "task/1")
-        assertEquals("task/1", Git.getBranch(context, File(env.basedir, "c1")))
+        GitFeature.switch(context, "feature/project-2000", "project-2000")
+        assertEquals("project-2000", Git.getBranch(context, File(env.basedir, "c1")))
+        assertEquals("feature/project-2000", Git.getBranch(context, File(env.basedir, "c2")))
     }
 
     @Test

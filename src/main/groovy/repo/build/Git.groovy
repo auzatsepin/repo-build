@@ -11,7 +11,7 @@ class Git {
     static boolean branchPresent(ActionContext parentContext, File dir, String branch) {
         def context = parentContext.newChild(ACTION_BRANCH_PRESENT)
         context.withCloseable {
-            return !ExecuteProcess.executeCmd0(context, dir, "git ls-remote . $branch", true).empty
+            return !ExecuteProcess.executeCmd0(context, dir, "git ls-remote . origin/$branch", true).empty
         }
     }
 
