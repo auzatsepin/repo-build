@@ -2,8 +2,7 @@ package repo.build
 
 import java.io.File
 import java.io.FileWriter
-import java.nio.file.Files
-import java.nio.file.Paths
+import java.util.regex.Pattern
 
 class SandboxClosure(val action: (Sandbox, File?) -> Sandbox) {
 
@@ -71,13 +70,19 @@ class SandboxKt {
     }
 
     fun changeDefaultBranchComponentOnManifest(manifestDir: File, component: String, defaultBranch: String): SandboxKt {
-        val toString = Files.readAllBytes(Paths.get(if (manifestDir.endsWith("/")) {
-            manifestDir.absolutePath + "default.xml"
+        val manifestFileName = if (manifestDir.endsWith("/")) {
+            "default.xml"
         } else {
-            manifestDir.absolutePath + "/default.xml"
-        })).toString(Charsets.UTF_8)
-        toString.replace("""<project name='$component' remote='origin' path='$component' revision='refs/heads/[\\w\\s./]+\' />'""",
-                """'<project name='$component' remote='origin' path='$component' revision='refs/heads/$defaultBranch' />""".trimMargin())
+            "/default.xml"
+        }
+        val manifestFile = File(manifestDir, manifestFileName)
+        val text = manifestFile.readText(Charsets.UTF_8)
+        val origin = "<project name='$component' remote='origin' path='$component' revision='refs/heads/[\\w\\s./]+' />"
+        val new = "<project name='$component' remote='origin' path='$component' revision='refs/heads/$defaultBranch' />"
+        val pattern = Pattern.compile(origin)
+        val matcher = pattern.matcher(text)
+        val replaceAll = matcher.replaceAll(new)
+        manifestFile.writeText(replaceAll, Charsets.UTF_8)
         return this
     }
 
