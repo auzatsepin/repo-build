@@ -1,6 +1,7 @@
 package repo.build
 
-
+import kotlin.Unit
+import kotlin.jvm.functions.Function1
 import kotlin.jvm.functions.Function2
 import org.apache.maven.shared.invoker.InvocationRequest
 import org.junit.Before
@@ -185,14 +186,20 @@ class MavenFeatureTest extends BaseTestCase {
                     @Override
                     Sandbox invoke(Sandbox sandbox, File dir) {
                         Maven.execute(sandbox.context, new File(dir, 'pom.xml'),
-                                { InvocationRequest req ->
-                                    req.setGoals(Arrays.asList("versions:set"))
-                                    req.setInteractive(false)
-                                    Properties properties = new Properties()
-                                    properties.put("newVersion", version)
-                                    properties.put('generateBackupPoms', 'false')
-                                    req.setProperties(properties)
-                                }
+                                new MavenRequest(
+                                        new Function1<InvocationRequest, Unit>() {
+                                            @Override
+                                            Unit invoke(InvocationRequest req) {
+                                                req.setGoals(Arrays.asList("versions:set"))
+                                                req.setInteractive(false)
+                                                Properties properties = new Properties()
+                                                properties.put("newVersion", version)
+                                                properties.put('generateBackupPoms', 'false')
+                                                req.setProperties(properties)
+                                                return null
+                                            }
+                                        }
+                                )
                         )
                         Git.add(sandbox.context, dir, 'pom.xml')
                         Git.commit(sandbox.context, dir, 'vup')
@@ -217,14 +224,20 @@ class MavenFeatureTest extends BaseTestCase {
                     @Override
                     Sandbox invoke(Sandbox sandbox, File dir) {
                         Maven.execute(sandbox.context, new File(dir, 'pom.xml'),
-                                { InvocationRequest req ->
-                                    req.setGoals(Arrays.asList("versions:set"))
-                                    req.setInteractive(false)
-                                    Properties properties = new Properties()
-                                    properties.put("newVersion", '1.1.0-SNAPSHOT')
-                                    properties.put('generateBackupPoms', 'false')
-                                    req.setProperties(properties)
-                                }
+                                new MavenRequest(
+                                        new Function1<InvocationRequest, Unit>() {
+                                            @Override
+                                            Unit invoke(InvocationRequest req) {
+                                                req.setGoals(Arrays.asList("versions:set"))
+                                                req.setInteractive(false)
+                                                Properties properties = new Properties()
+                                                properties.put("newVersion", '1.1.0-SNAPSHOT')
+                                                properties.put('generateBackupPoms', 'false')
+                                                req.setProperties(properties)
+                                                return null
+                                            }
+                                        }
+                                )
                         )
                         Git.addUpdated(sandbox.context, dir)
                         Git.commit(sandbox.context, dir, 'vup')
@@ -238,14 +251,20 @@ class MavenFeatureTest extends BaseTestCase {
                     @Override
                     Sandbox invoke(Sandbox sandbox, File dir) {
                         Maven.execute(sandbox.context, new File(dir, 'pom.xml'),
-                                { InvocationRequest req ->
-                                    req.setGoals(Arrays.asList("versions:set"))
-                                    req.setInteractive(false)
-                                    Properties properties = new Properties()
-                                    properties.put("newVersion", '2.1.0-SNAPSHOT')
-                                    properties.put('generateBackupPoms', 'false')
-                                    req.setProperties(properties)
-                                }
+                                new MavenRequest(
+                                        new Function1<InvocationRequest, Unit>() {
+                                            @Override
+                                            Unit invoke(InvocationRequest req) {
+                                                req.setGoals(Arrays.asList("versions:set"))
+                                                req.setInteractive(false)
+                                                Properties properties = new Properties()
+                                                properties.put("newVersion", '2.1.0-SNAPSHOT')
+                                                properties.put('generateBackupPoms', 'false')
+                                                req.setProperties(properties)
+                                                return null
+                                            }
+                                        }
+                                )
                         )
                         Git.addUpdated(sandbox.context, dir)
                         Git.commit(sandbox.context, dir, 'vup')
@@ -280,14 +299,20 @@ class MavenFeatureTest extends BaseTestCase {
                     @Override
                     Sandbox invoke(Sandbox sandbox, File dir) {
                         Maven.execute(sandbox.context, new File(dir, 'pom.xml'),
-                                { InvocationRequest req ->
-                                    req.setGoals(Arrays.asList("versions:set"))
-                                    req.setInteractive(false)
-                                    Properties properties = new Properties()
-                                    properties.put("newVersion", '1.1.0-SNAPSHOT')
-                                    properties.put('generateBackupPoms', 'false')
-                                    req.setProperties(properties)
-                                }
+                                new MavenRequest(
+                                        new Function1<InvocationRequest, Unit>() {
+                                            @Override
+                                            Unit invoke(InvocationRequest req) {
+                                                req.setGoals(Arrays.asList("versions:set"))
+                                                req.setInteractive(false)
+                                                Properties properties = new Properties()
+                                                properties.put("newVersion", '1.1.0-SNAPSHOT')
+                                                properties.put('generateBackupPoms', 'false')
+                                                req.setProperties(properties)
+                                                return null
+                                            }
+                                        }
+                                )
                         )
                         Git.addUpdated(sandbox.context, dir)
                         Git.commit(sandbox.context, dir, 'vup')
@@ -301,14 +326,20 @@ class MavenFeatureTest extends BaseTestCase {
                     @Override
                     Sandbox invoke(Sandbox sandbox, File dir) {
                         Maven.execute(sandbox.context, new File(dir, 'pom.xml'),
-                                { InvocationRequest req ->
-                                    req.setGoals(Arrays.asList("versions:set"))
-                                    req.setInteractive(false)
-                                    Properties properties = new Properties()
-                                    properties.put("newVersion", '2.1.0-SNAPSHOT')
-                                    properties.put('generateBackupPoms', 'false')
-                                    req.setProperties(properties)
-                                }
+                                new MavenRequest(
+                                        new Function1<InvocationRequest, Unit>() {
+                                            @Override
+                                            Unit invoke(InvocationRequest req) {
+                                                req.setGoals(Arrays.asList("versions:set"))
+                                                req.setInteractive(false)
+                                                Properties properties = new Properties()
+                                                properties.put("newVersion", '2.1.0-SNAPSHOT')
+                                                properties.put('generateBackupPoms', 'false')
+                                                req.setProperties(properties)
+                                                return null
+                                            }
+                                        }
+                                )
                         )
                         Git.addUpdated(sandbox.context, dir)
                         Git.commit(sandbox.context, dir, 'vup')
@@ -330,10 +361,16 @@ class MavenFeatureTest extends BaseTestCase {
                     @Override
                     Sandbox invoke(Sandbox sandbox, File dir) {
                         Maven.execute(sandbox.context, new File(dir, 'pom.xml'),
-                                { InvocationRequest req ->
-                                    req.setGoals(Arrays.asList("clean"))
-                                    req.setInteractive(false)
-                                }
+                                new MavenRequest(
+                                        new Function1<InvocationRequest, Unit>() {
+                                            @Override
+                                            Unit invoke(InvocationRequest req) {
+                                                req.setGoals(Arrays.asList("clean"))
+                                                req.setInteractive(false)
+                                                return null
+                                            }
+                                        }
+                                )
                         )
                         return sandbox
                     }
@@ -358,13 +395,19 @@ class MavenFeatureTest extends BaseTestCase {
                     @Override
                     Sandbox invoke(Sandbox sandbox, File dir) {
                         Maven.execute(sandbox.context, new File(dir, 'pom.xml'),
-                                { InvocationRequest req ->
-                                    req.setGoals(Arrays.asList('clean', 'install'))
-                                    req.setInteractive(false)
-                                    Properties properties = new Properties()
-                                    properties.put('skipTests', 'true')
-                                    req.setProperties(properties)
-                                }
+                                new MavenRequest(
+                                        new Function1<InvocationRequest, Unit>() {
+                                            @Override
+                                            Unit invoke(InvocationRequest req) {
+                                                req.setGoals(Arrays.asList('clean', 'install'))
+                                                req.setInteractive(false)
+                                                Properties properties = new Properties()
+                                                properties.put('skipTests', 'true')
+                                                req.setProperties(properties)
+                                                return null
+                                            }
+                                        }
+                                )
                         )
                         return sandbox
                     }
@@ -429,7 +472,9 @@ class MavenFeatureTest extends BaseTestCase {
         Pom.generateXml(context, 'feature/1', new File(env.basedir, 'pom.xml'))
 
         MavenFeature.buildParents(context)
-        Maven.execute(context, new File(env.basedir, 'pom.xml'), ['clean', 'install'], new Properties())
+        Maven.execute(context, new File(env.basedir, 'pom.xml'),
+                ['clean', 'install'],
+                new Properties() as Map<String, String>)
     }
 
 
@@ -489,5 +534,4 @@ class MavenFeatureTest extends BaseTestCase {
 
         }
     }
-
 }

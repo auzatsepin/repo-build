@@ -1,6 +1,8 @@
 package repo.build
 
 import groovy.transform.CompileStatic
+import kotlin.Unit
+import kotlin.jvm.functions.Function1
 import org.apache.log4j.Logger
 import org.apache.maven.shared.invoker.InvocationRequest
 import repo.build.maven.Build
@@ -58,14 +60,20 @@ class MavenFeature {
             def artifactId = parentPom.artifactId.text()
             String version = parentPom.version.text()
 
-            // rebuild parent
             Maven.execute(context, parentPomFile,
-                    { InvocationRequest req ->
-                        initInvocationRequest(req, context.getOptions())
-                        req.setGoals(Arrays.asList("clean", "install"))
-                        req.setInteractive(false)
-                        req.getProperties().put("skipTest", 'true')
-                    }
+                    new MavenRequest(
+                            new Function1<InvocationRequest, Unit>() {
+                                @Override
+                                Unit invoke(InvocationRequest req) {
+                                    initInvocationRequest(req, context.getOptions())
+                                    req.setGoals(Arrays.asList("clean", "install"))
+                                    req.setInteractive(false)
+                                    req.getProperties().put("skipTest", 'true')
+                                    return null
+                                }
+                            }
+
+                    )
             )
 
             // для всех компонентов в кторых ест фича бранч
@@ -87,15 +95,20 @@ class MavenFeature {
                             ) {
                                 // если группа, артефакт совпадают а версия нет - подменяем версию parent
                                 Maven.execute(actionContext, componentPomFile,
-                                        { InvocationRequest req ->
-                                            initInvocationRequest(req, context.getOptions())
-                                            req.setGoals(Arrays.asList("versions:update-parent"))
-                                            req.setInteractive(false)
-                                            //properties.put("parentVersion", version)
-                                            req.getProperties().put('generateBackupPoms', 'false')
-                                            req.getProperties().put('allowSnapshots', Boolean.toString(allowSnapshots))
+                                new MavenRequest(
+                                        new Function1<InvocationRequest, Unit>() {
+                                            @Override
+                                            Unit invoke(InvocationRequest req) {
+                                                initInvocationRequest(req, context.getOptions())
+                                                req.setGoals(Arrays.asList("versions:update-parent"))
+                                                req.setInteractive(false)
+                                                //properties.put("parentVersion", version)
+                                                req.getProperties().put('generateBackupPoms', 'false')
+                                                req.getProperties().put('allowSnapshots', Boolean.toString(allowSnapshots))
+                                                return null
+                                            }
                                         }
-                                )
+                                ))
                                 // check modify pom.xml
                                 if (Git.isFileModified(actionContext, dir, "pom.xml")) {
                                     // if it modifies - commit vup
@@ -123,8 +136,6 @@ class MavenFeature {
                                     boolean allowSnapshots) {
         def context = parentContext.newChild(ACTION_UPDATE_PARENT)
         context.withCloseable {
-            def parentBranch = Git.getBranch(context, new File(context.env.basedir, parentComponent))
-            // TODO: check parentBranch = manifestBranch
             // get parent artifact
             def parentPomFile = new File(context.env.basedir, parentComponent + "/pom.xml")
             def parentPom = XmlUtils.parse(parentPomFile)
@@ -134,12 +145,18 @@ class MavenFeature {
 
             // rebuild parent
             Maven.execute(context, parentPomFile,
-                    { InvocationRequest req ->
-                        initInvocationRequest(req, context.getOptions())
-                        req.setGoals(Arrays.asList("clean", "install"))
-                        req.setInteractive(false)
-                        req.getProperties().put("skipTest", 'true')
-                    }
+                new MavenRequest(
+                        new Function1<InvocationRequest, Unit>() {
+                            @Override
+                            Unit invoke(InvocationRequest req) {
+                                initInvocationRequest(req, context.getOptions())
+                                req.setGoals(Arrays.asList("clean", "install"))
+                                req.setInteractive(false)
+                                req.getProperties().put("skipTest", 'true')
+                                return null
+                            }
+                        }
+                )
             )
 
             // для всех компонентов в кторых ест фича бранч
@@ -161,14 +178,20 @@ class MavenFeature {
                             ) {
                                 // если группа, артефакт совпадают а версия нет - подменяем версию parent
                                 Maven.execute(actionContext, componentPomFile,
-                                        { InvocationRequest req ->
-                                            initInvocationRequest(req, context.getOptions())
-                                            req.setGoals(Arrays.asList("versions:update-parent"))
-                                            req.setInteractive(false)
-                                            //properties.put("parentVersion", version)
-                                            req.getProperties().put('generateBackupPoms', 'false')
-                                            req.getProperties().put('allowSnapshots', Boolean.toString(allowSnapshots))
-                                        }
+                                    new MavenRequest(
+                                            new Function1<InvocationRequest, Unit>() {
+                                                @Override
+                                                Unit invoke(InvocationRequest req) {
+                                                    initInvocationRequest(req, context.getOptions())
+                                                    req.setGoals(Arrays.asList("versions:update-parent"))
+                                                    req.setInteractive(false)
+                                                    //properties.put("parentVersion", version)
+                                                    req.getProperties().put('generateBackupPoms', 'false')
+                                                    req.getProperties().put('allowSnapshots', Boolean.toString(allowSnapshots))
+                                                    return null
+                                                }
+                                            }
+                                    )
                                 )
                                 // check modify pom.xml
                                 if (Git.isFileModified(actionContext, dir, "pom.xml")) {
@@ -228,14 +251,20 @@ class MavenFeature {
                                          boolean allowSnapshots) {
         // call version plugin
         Maven.execute(context, pomFile,
-                { InvocationRequest req ->
-                    initInvocationRequest(req, context.getOptions())
-                    req.setGoals(Arrays.asList("versions:update-properties"))
-                    req.setInteractive(false)
-                    req.getProperties().put("allowSnapshots", Boolean.toString(allowSnapshots))
-                    req.getProperties().put("includes", includes)
-                    req.getProperties().put('generateBackupPoms', 'false')
-                }
+            new MavenRequest(
+                    new Function1<InvocationRequest, Unit>() {
+                        @Override
+                        Unit invoke(InvocationRequest req) {
+                            initInvocationRequest(req, context.getOptions())
+                            req.setGoals(Arrays.asList("versions:update-properties"))
+                            req.setInteractive(false)
+                            req.getProperties().put("allowSnapshots", Boolean.toString(allowSnapshots))
+                            req.getProperties().put("includes", includes)
+                            req.getProperties().put('generateBackupPoms', 'false')
+                            return null
+                        }
+                    }
+            )
         )
     }
 
@@ -245,15 +274,20 @@ class MavenFeature {
                                         String includes,
                                         boolean allowSnapshots) {
         Maven.execute(context, pomFile,
-                { InvocationRequest req ->
-                    initInvocationRequest(req, context.getOptions())
-                    req.setGoals(Arrays.asList("versions:use-latest-versions"))
-                    req.setInteractive(false)
-                    req.getProperties().put("allowSnapshots", Boolean.toString(allowSnapshots))
-                    req.getProperties().put("includes", includes)
-                    req.getProperties().put('generateBackupPoms', 'false')
+        new MavenRequest(
+                new Function1<InvocationRequest, Unit>() {
+                    @Override
+                    Unit invoke(InvocationRequest req) {
+                        initInvocationRequest(req, context.getOptions())
+                        req.setGoals(Arrays.asList("versions:use-latest-versions"))
+                        req.setInteractive(false)
+                        req.getProperties().put("allowSnapshots", Boolean.toString(allowSnapshots))
+                        req.getProperties().put("includes", includes)
+                        req.getProperties().put('generateBackupPoms', 'false')
+                        return null
+                    }
                 }
-        )
+        ))
     }
 
 
@@ -443,12 +477,18 @@ class MavenFeature {
         context.withCloseable {
             // rebuild parent
             Maven.execute(context, null,
-                    { InvocationRequest req ->
-                        initInvocationRequest(req, context.getOptions())
-                        req.setGoals(Arrays.asList("dependency:purge-local-repository"))
-                        req.setInteractive(false)
-                        req.getProperties().put("manualInclude", manualInclude)
-                    }
+                new MavenRequest(
+                        new Function1<InvocationRequest, Unit>() {
+                            @Override
+                            Unit invoke(InvocationRequest req) {
+                                initInvocationRequest(req, context.getOptions())
+                                req.setGoals(Arrays.asList("dependency:purge-local-repository"))
+                                req.setInteractive(false)
+                                req.getProperties().put("manualInclude", manualInclude)
+                                return null
+                            }
+                        }
+                )
             )
         }
 

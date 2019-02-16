@@ -59,7 +59,7 @@ class GitFeatureTestKt : BaseTestCaseKt() {
     }
 
     @Test
-    fun `should sync all compoment from manifest`() {
+    fun `should sync all component from manifest`() {
         val url = File(sandbox.env.basedir, "manifest")
         GitFeature.cloneManifest(context, url.absolutePath, "master")
 
@@ -355,7 +355,7 @@ class GitFeatureTestKt : BaseTestCaseKt() {
 
         val predicates = arrayListOf<OutputFilter>()
         predicates.add(UnpushedStatusFilter())
-        context.outputFilter.put(GitFeature.ACTION_STATUS, predicates)
+        context.outputFilter[GitFeature.ACTION_STATUS] = predicates
         GitFeature.status(context)
 
         val splitedOutput1 = outputCapture
@@ -850,11 +850,3 @@ class GitFeatureTestKt : BaseTestCaseKt() {
     }
 
 }
-
-private var File.text: String
-    get() {
-        return readText(Charsets.UTF_8)
-    }
-    set(text) {
-        writeText(text, Charsets.UTF_8)
-    }
