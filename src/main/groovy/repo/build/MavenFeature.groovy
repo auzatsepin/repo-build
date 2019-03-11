@@ -139,7 +139,7 @@ class MavenFeature {
                     }, featureBranch)*/
             forEachWithFeatureBranchAndPom(context, new ManifestAction(new Function2<ActionContext, Node, Unit>() {
                 @Override
-                Unit invoke(ActionContext actionContext, Node node) {
+                Unit invoke(ActionContext actionContext, Node project) {
                     if (parentComponent != project.@path) {
                         def dir = new File(actionContext.env.basedir, project.@path)
                         def componentPomFile = new File(dir, "/pom.xml")

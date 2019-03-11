@@ -1,5 +1,6 @@
 package repo.build
 
+import kotlin.Unit
 import kotlin.jvm.functions.Function2
 import org.junit.Before
 import org.junit.Test
@@ -35,11 +36,15 @@ class RepoManifestTest extends BaseTestCase {
         env.openManifest()
         try {
             RepoManifest.forEach(context,
-                    { ActionContext actionContext, project ->
-                        if (project.@path == 'c1') {
-                            throw new RepoBuildException('test')
+                    new ManifestAction(new Function2<ActionContext, Node, Unit>() {
+                        @Override
+                        Unit invoke(ActionContext actionContext, Node project) {
+                            if (project.@path == 'c1') {
+                                throw new RepoBuildException('test')
+                            }
+                            return null
                         }
-                    })
+                    }))
             fail()
         }
         catch (RepoBuildException e) {

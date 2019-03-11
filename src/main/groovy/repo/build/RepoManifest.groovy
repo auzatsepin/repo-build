@@ -2,6 +2,8 @@ package repo.build
 
 import groovy.transform.CompileStatic
 import groovyx.gpars.GParsPool
+import kotlin.Unit
+import kotlin.jvm.functions.Function2
 import org.apache.log4j.Logger
 
 class RepoManifest {
@@ -12,7 +14,7 @@ class RepoManifest {
     }
 
     static String getRemoteBaseUrl(ActionContext context) {
-        if (context.options.getManifestRemote()){
+        if (context.options.getManifestRemote()) {
             return context.options.getManifestRemote()
         } else {
             return context.env.manifest.remote[0].@fetch
@@ -30,22 +32,35 @@ class RepoManifest {
         return "$remoteName/$branch"
     }
 
-    static void forEach(ActionContext parentContext, Closure filter, Closure action) {
+    static void forEach(ActionContext parentContext, ManifestFilter filter, ManifestAction action) {
         forEach(parentContext, filter, action,
-                { ActionContext actionContext, project ->
-                    def path = project.@path
-                    actionContext.newChildWriteOut("$path\n")
-                },
-                { ActionContext actionContext, project ->
-                    actionContext.newChildWriteOut("\n")
-                }
+                new ManifestLogHeader(new Function2<ActionContext, Node, Unit>() {
+                    @Override
+                    Unit invoke(ActionContext actionContext, Node project) {
+                        def path = project.@path
+                        actionContext.newChildWriteOut("$path\n")
+                        return null
+                    }
+                }),
+                new ManifestLogFooter(new Function2<ActionContext, Node, Unit>() {
+                    @Override
+                    Unit invoke(ActionContext actionContext, Node project) {
+                        actionContext.newChildWriteOut("\n")
+                        return null
+                    }
+                })
+
         )
     }
 
     public final static String ACTION_FOR_EACH = 'repoManifestForEach'
     public final static String ACTION_FOR_EACH_ITERATION = 'repoManifestForEachIteraction'
 
-    static void forEach(ActionContext parentContext, Closure filter, Closure action, Closure logHeader, Closure logFooter) {
+    static void forEach(ActionContext parentContext,
+                        ManifestFilter filter,
+                        ManifestAction action,
+                        ManifestLogHeader logHeader,
+                        ManifestLogFooter logFooter) {
         def context = parentContext.newChild(ACTION_FOR_EACH)
         context.withCloseable {
             GParsPool.withPool(context.getParallel(), {
@@ -54,13 +69,13 @@ class RepoManifest {
                     def actionContext = context.newChild(ACTION_FOR_EACH_ITERATION)
                     actionContext.withCloseable {
                         try {
-                            if (filter(actionContext, project)) {
+                            if (filter.invoke(actionContext, project)) {
                                 if (logHeader != null) {
-                                    logHeader(actionContext, project)
+                                    logHeader.invoke(actionContext, project)
                                 }
-                                action(actionContext, project)
+                                action.invoke(actionContext, project)
                                 if (logFooter != null) {
-                                    logFooter(actionContext, project)
+                                    logFooter.invoke(actionContext, project)
                                 }
                             }
                             return null
@@ -81,21 +96,27 @@ class RepoManifest {
 
 
     @CompileStatic
-    static void forEach(ActionContext parentContext, Closure action) {
+    static void forEach(ActionContext parentContext, ManifestAction action) {
         forEach(parentContext,
-                { ActionContext actionContext, Node project ->
-                    return true
-                },
+                new ManifestFilter(new Function2<ActionContext, Node, Boolean>() {
+                    @Override
+                    Boolean invoke(ActionContext actionContext, Node Node) {
+                        return true
+                    }
+                }),
                 action)
     }
 
-    static void forEachWithBranch(ActionContext parentContext, Closure action, String branch) {
+    static void forEachWithBranch(ActionContext parentContext, ManifestAction action, String branch) {
         def remoteBranch = getRemoteBranch(parentContext, branch)
 
         forEach(parentContext,
-                { ActionContext actionContext, project ->
-                    Git.branchPresent(actionContext, new File(actionContext.env.basedir, project.@path), remoteBranch)
-                },
+                new ManifestFilter(new Function2<ActionContext, Node, Boolean>() {
+                    @Override
+                    Boolean invoke(ActionContext actionContext, Node project) {
+                        return Git.branchPresent(actionContext, new File(actionContext.env.basedir, project.@path), remoteBranch)
+                    }
+                }),
                 action
         )
     }
