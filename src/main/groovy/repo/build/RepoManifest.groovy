@@ -63,6 +63,7 @@ class RepoManifest {
                                     logFooter(actionContext, project)
                                 }
                             }
+                            return null
                         }
                         catch (Exception e) {
                             def componentError = new RepoBuildException("Component ${project.@path} error ${e.message}", e)

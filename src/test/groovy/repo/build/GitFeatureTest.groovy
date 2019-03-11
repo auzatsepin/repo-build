@@ -1,6 +1,7 @@
 package repo.build
 
 import com.google.common.io.Files
+import kotlin.Unit
 import kotlin.jvm.functions.Function2
 import org.junit.Before
 import org.junit.Rule
@@ -875,9 +876,18 @@ class GitFeatureTest extends BaseTestCase {
     void testLastCommitByManifest() {
         List<String> commits = new ArrayList<>()
         sandbox.env.openManifest()
-        RepoManifest.forEach(sandbox.context, { ActionContext actionContext, Node project ->
+/*        RepoManifest.forEach(sandbox.context, { ActionContext actionContext, Node project ->
             commits.add(Git.getLastCommit(actionContext, new File(sandbox.env.basedir, project.@path)))
-        })
+        })*/
+        RepoManifest.forEach(sandbox.context,
+            new ManifestAction(new Function2<ActionContext, Node, Unit>() {
+                @Override
+                Unit invoke(ActionContext actionContext, Node node) {
+                    commits.add(Git.getLastCommit(actionContext, new File(sandbox.env.basedir, project.@path)))
+                    return null
+                }
+            })
+        )
 
         assertEquals(2, commits.size())
     }

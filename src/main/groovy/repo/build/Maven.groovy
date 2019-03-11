@@ -24,7 +24,9 @@ class Maven {
             if (result.exitCode != 0) {
                 throw new RepoBuildException("exitCode: " + result.exitCode)
             }
-            handleResult.invoke(result)
+            if (handleResult != null) {
+                handleResult.invoke(result)
+            }
         }
         catch (Exception e) {
             throw new RepoBuildException(e.getMessage(), e)
@@ -32,14 +34,13 @@ class Maven {
     }
 
     static void execute(ActionContext context, File pomFile, MavenRequest handleRequest) {
-        execute(context, pomFile, handleRequest, new MavenResult(
-                new Function1<InvocationResult, Unit>() {
-                    @Override
-                    Unit invoke(InvocationResult invocationResult) {
-                        return null
-                    }
-                }
-        ))
+        /*execute(context, pomFile, handleRequest, {})*/
+        execute(context, pomFile, handleRequest, new MavenResult(new Function1<InvocationResult, Unit>() {
+            @Override
+            Unit invoke(InvocationResult invocationResult) {
+                return null
+            }
+        }))
     }
 
     @CompileStatic
