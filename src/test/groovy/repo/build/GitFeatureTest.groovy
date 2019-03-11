@@ -882,7 +882,7 @@ class GitFeatureTest extends BaseTestCase {
         RepoManifest.forEach(sandbox.context,
             new ManifestAction(new Function2<ActionContext, Node, Unit>() {
                 @Override
-                Unit invoke(ActionContext actionContext, Node node) {
+                Unit invoke(ActionContext actionContext, Node project) {
                     commits.add(Git.getLastCommit(actionContext, new File(sandbox.env.basedir, project.@path)))
                     return null
                 }

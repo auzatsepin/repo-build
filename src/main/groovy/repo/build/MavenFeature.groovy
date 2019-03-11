@@ -159,7 +159,7 @@ class MavenFeature {
                                             new Function1<InvocationRequest, Unit>() {
                                                 @Override
                                                 Unit invoke(InvocationRequest req) {
-                                                    initInvocationRequest(req, context.getOptions())
+                                                    MavenFeature.initInvocationRequest(req, context.getOptions())
                                                     req.setGoals(Arrays.asList("versions:update-parent"))
                                                     req.setInteractive(false)
                                                     //properties.put("parentVersion", version)
@@ -286,7 +286,7 @@ class MavenFeature {
                                             new Function1<InvocationRequest, Unit>() {
                                                 @Override
                                                 Unit invoke(InvocationRequest req) {
-                                                    initInvocationRequest(req, context.getOptions())
+                                                    MavenFeature.initInvocationRequest(req, context.getOptions())
                                                     req.setGoals(Arrays.asList("versions:update-parent"))
                                                     req.setInteractive(false)
                                                     //properties.put("parentVersion", version)
