@@ -15,11 +15,11 @@ class XmlUtils {
         return new XmlParser().parse(xmlFile)
     }
 
-    static String modifyWithPreserveFormatting(String xml, Closure action) {
+    static String modifyWithPreserveFormatting(String xml, XmlUtilsAction action) {
         def document = groovy.xml.DOMBuilder.parse(new StringReader(xml))
         def root = document.documentElement
         use(groovy.xml.dom.DOMCategory) {
-            action(root)
+            action.invoke(root)
         }
 
         StringWriter sw = new StringWriter()

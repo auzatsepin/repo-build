@@ -58,7 +58,7 @@ class ReleaseMergeReleaseSpecification extends Specification {
         repoBuild.execute()
 
         then:
-        1 * GitFeature.releaseMergeRelease(_, '1.0', '1.1', /(\d+\.\d+)/, _)
+        1 * GitFeature.releaseMergeRelease(_, '1.0', '1.1', /(\d+\.\d+)/)
     }
 
     def "with release-source, release-destination, release-regexp"() {
@@ -68,7 +68,7 @@ class ReleaseMergeReleaseSpecification extends Specification {
         repoBuild.execute()
 
         then:
-        1 * GitFeature.releaseMergeRelease(_, '1.0', '1.1', 'regexp', _)
+        1 * GitFeature.releaseMergeRelease(_, '1.0', '1.1', 'regexp')
     }
 
 }

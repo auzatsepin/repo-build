@@ -111,7 +111,10 @@ class GitFeature {
         }
     }
 
-    static void releaseMergeRelease(ActionContext context, String sourceRelease, String destinationRelease, String regexp, Closure versionClosure) {
+    static void releaseMergeRelease(ActionContext context,
+                                    String sourceRelease,
+                                    String destinationRelease,
+                                    String regexp) {
         updateManifest(context, sourceRelease)
         context.env.openManifest()
 
@@ -164,9 +167,20 @@ class GitFeature {
                         def sourceBranch = sourceBranches.get(component)
                         if (sourceBranch != null) {
                             try {
-                                Version targetVersion = Version.valueOf(targetBranch.find(regexp, versionClosure).toString())
-                                Version sourceVersion = Version.valueOf(sourceBranch.find(regexp, versionClosure).toString())
-
+                                def targetStringVersion = targetBranch.find(regexp).toString()
+                                Version targetVersion
+                                if (targetStringVersion.split("\\.").length < 3) {
+                                    targetVersion = Version.valueOf(targetStringVersion += ".0")
+                                } else {
+                                    targetVersion = Version.valueOf(targetStringVersion)
+                                }
+                                def sourceStringVersion = sourceBranch.find(regexp).toString()
+                                Version sourceVersion
+                                if (sourceStringVersion.split("\\.").length < 3) {
+                                    sourceVersion = Version.valueOf(sourceStringVersion += ".0")
+                                } else {
+                                    sourceVersion = Version.valueOf(sourceStringVersion)
+                                }
                                 if (targetVersion.greaterThanOrEqualTo(sourceVersion)) {
                                     Git.merge(context, RepoManifest.getRemoteBranch(context, sourceBranch), dir)
                                 } else {

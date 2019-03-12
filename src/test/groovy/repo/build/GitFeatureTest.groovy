@@ -698,9 +698,6 @@ class GitFeatureTest extends BaseTestCase {
         assertEquals('', new File(c1Dir, 'README.md').text)
     }
 
-    /**
-     * {@link repo.build.GitFeature#releaseMergeRelease(ActionContext context, String oneManifestBranch, String twoManifestBranch, String regexp, Closure versionClosure) }
-     */
     @Test
     void testReleaseMergeRelease() {
         //init
@@ -749,10 +746,7 @@ class GitFeatureTest extends BaseTestCase {
         ))
 
         //expected call function
-        GitFeature.releaseMergeRelease(context, '1.0', '2.0', /(\d+\.\d+)/,
-                {
-                    List list -> return list[0]+".0"
-                })
+        GitFeature.releaseMergeRelease(context, '1.0', '2.0', /(\d+\.\d+)/)
 
         Git.checkout(context, new File(context.env.basedir, 'c2'), 'develop/2.0')
         assertEquals('TEST123', new File(context.env.basedir, 'c2/test').text)

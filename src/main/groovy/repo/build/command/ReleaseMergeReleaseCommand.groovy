@@ -22,11 +22,11 @@ class ReleaseMergeReleaseCommand extends AbstractCommand {
             if (options.hasVersionRegexp()) {
                 GitFeature.releaseMergeRelease(context, options.getSourceReleaseManifestBranch(),
                         options.getDestinationReleaseManifestBranch(),
-                        options.getVersionRegexp(), {})
+                        options.getVersionRegexp())
             } else {
                 GitFeature.releaseMergeRelease(context, options.getSourceReleaseManifestBranch(),
                         options.getDestinationReleaseManifestBranch(),
-                        DEFAULT_REGEXP, { List list -> return list[0]+".0" })
+                        DEFAULT_REGEXP)
             }
         }
     }

@@ -139,7 +139,7 @@ class GitFeatureTestKt : BaseTestCaseKt() {
     }
 
     @Test
-    fun `should not switch task when feature doesn't exist`() {
+    fun `should not switch task when feature doesn"t exist`() {
         val url = File(sandbox.env.basedir, "manifest")
         GitFeature.cloneManifest(context, url.absolutePath, "master")
 
@@ -593,12 +593,30 @@ class GitFeatureTestKt : BaseTestCaseKt() {
         assertEquals("", File(c1Dir, "README.md").text)
     }
 
-    @Ignore //todo need rewrite main code
     @Test
     fun `should merge release to release`() {
         //init
         val url = File(sandbox.env.basedir, "manifest")
         GitFeature.cloneManifest(context, url.absolutePath, "master")
+
+/*        sandbox.component("c2", SandboxClosure(
+                Function2<Sandbox, File, Sandbox>() {
+            @Override
+            Sandbox invoke(Sandbox sandbox, File dir) {
+            Git.createBranch(context, dir, "develop/1.0")
+            Git.createBranch(context, dir, "develop/2.0")
+
+            //some changes
+            Git.checkout(context, dir, "develop/1.0")
+            def newFile = new File(dir, "test")
+            newFile.createNewFile()
+            newFile.text = "TEST123"
+            Git.add(context, dir, "test")
+            Git.commit(context, dir, "test")
+            return sandbox
+        }
+        }
+        ))*/
 
         sandbox.component("c2") { sandbox, dir ->
             Git.createBranch(context, dir, "develop/1.0")
@@ -614,8 +632,29 @@ class GitFeatureTestKt : BaseTestCaseKt() {
             sandbox
         }
 
-        sandbox.component("manifest") { sandbox, dir ->
+/*        sandbox.component("manifest", SandboxClosure(
+                Function2<Sandbox, File, Sandbox>() {
+            @Override
+            Sandbox invoke(Sandbox sandbox, File dir) {
             //change default branch to develop/1.0 on c2 component in manifest
+            Git.createBranch(context, dir, "1.0")
+            Git.checkout(context, dir, "1.0")
+            sandbox.changeDefaultBranchComponentOnManifest(dir, "c2", "develop/1.0")
+            Git.add(context, dir, "default.xml")
+            Git.commit(context, dir, "vup")
+
+            //change default branch to develop/2.0 on c2 component in manifest
+            Git.createBranch(context, dir, "2.0")
+            Git.checkout(context, dir, "2.0")
+            sandbox.changeDefaultBranchComponentOnManifest(dir, "c2", "develop/2.0")
+            Git.add(context, dir, "default.xml")
+            Git.commit(context, dir, "vup")
+            return sandbox
+        }
+        }
+        ))*/
+
+        sandbox.component("manifest") { sandbox, dir ->
             Git.createBranch(context, dir, "1.0")
             Git.checkout(context, dir, "1.0")
             sandbox.changeDefaultBranchComponentOnManifest(dir, "c2", "develop/1.0")
@@ -631,11 +670,9 @@ class GitFeatureTestKt : BaseTestCaseKt() {
             sandbox
         }
 
+
         //expected call function
-        GitFeature.releaseMergeRelease(context, "1.0", "2.0", "/(\\ d +\\.\\ d +)/", null)
-        /*{
-            List list -> return list[0]+".0"
-        })*/
+        GitFeature.releaseMergeRelease(context, "1.0", "2.0", "/(\\d+\\.\\d+)/")
 
         Git.checkout(context, File(context.env.basedir, "c2"), "develop/2.0")
         assertEquals("TEST123", File(context.env.basedir, "c2/test").text)
@@ -731,17 +768,15 @@ class GitFeatureTestKt : BaseTestCaseKt() {
         assertEquals("1.5", Git.getBranch(context, File(context.env.basedir, "c2")))
     }
 
-    @Ignore //todo should rewrite main code
     @Test
     fun `should get last commits from manifest`() {
-/*        val commits = mutableListOf<String>()
+        val commits = mutableListOf<String>()
         sandbox.env.openManifest()
-        RepoManifest.forEach(sandbox.context, {
-            ActionContext actionContext, Node project ->
-            commits.add(Git.getLastCommit(actionContext, File(sandbox.env.basedir, project.@ path)))
-        })
+        RepoManifest.forEach(sandbox.context, ManifestAction(action = { actionContext, project ->
+            commits.add(Git.getLastCommit(actionContext, File(sandbox.env.basedir, project.attribute("path") as String)))
+        }))
 
-        assertEquals(2, commits.size())*/
+        assertEquals(2, commits.size)
     }
 
     @Test
