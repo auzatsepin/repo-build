@@ -39,14 +39,14 @@ class RepoManifest {
                     Unit invoke(ActionContext actionContext, Node project) {
                         def path = project.@path
                         actionContext.newChildWriteOut("$path\n")
-                        return null
+                        return Unit.INSTANCE
                     }
                 }),
                 new ManifestLogFooter(new Function2<ActionContext, Node, Unit>() {
                     @Override
                     Unit invoke(ActionContext actionContext, Node project) {
                         actionContext.newChildWriteOut("\n")
-                        return null
+                        return Unit.INSTANCE
                     }
                 })
 
@@ -78,7 +78,7 @@ class RepoManifest {
                                     logFooter.invoke(actionContext, project)
                                 }
                             }
-                            return null
+                            return Unit.INSTANCE
                         }
                         catch (Exception e) {
                             def componentError = new RepoBuildException("Component ${project.@path} error ${e.message}", e)

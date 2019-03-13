@@ -89,7 +89,7 @@ class MavenFeature {
                                     req.setGoals(Arrays.asList("clean", "install"))
                                     req.setInteractive(false)
                                     req.getProperties().put("skipTest", 'true')
-                                    return null
+                                    return Unit.INSTANCE
                                 }
                             }
 
@@ -165,7 +165,7 @@ class MavenFeature {
                                                     //properties.put("parentVersion", version)
                                                     req.getProperties().put('generateBackupPoms', 'false')
                                                     req.getProperties().put('allowSnapshots', Boolean.toString(allowSnapshots))
-                                                    return null
+                                                    return Unit.INSTANCE
                                                 }
                                             }
                                     ))
@@ -214,7 +214,7 @@ class MavenFeature {
                                     req.setGoals(Arrays.asList("clean", "install"))
                                     req.setInteractive(false)
                                     req.getProperties().put("skipTest", 'true')
-                                    return null
+                                    return Unit.INSTANCE
                                 }
                             }
                     )
@@ -292,7 +292,7 @@ class MavenFeature {
                                                     //properties.put("parentVersion", version)
                                                     req.getProperties().put('generateBackupPoms', 'false')
                                                     req.getProperties().put('allowSnapshots', Boolean.toString(allowSnapshots))
-                                                    return null
+                                                    return Unit.INSTANCE
                                                 }
                                             }
                                     )
@@ -365,7 +365,7 @@ class MavenFeature {
                                 req.getProperties().put("allowSnapshots", Boolean.toString(allowSnapshots))
                                 req.getProperties().put("includes", includes)
                                 req.getProperties().put('generateBackupPoms', 'false')
-                                return null
+                                return Unit.INSTANCE
                             }
                         }
                 )
@@ -388,7 +388,7 @@ class MavenFeature {
                                 req.getProperties().put("allowSnapshots", Boolean.toString(allowSnapshots))
                                 req.getProperties().put("includes", includes)
                                 req.getProperties().put('generateBackupPoms', 'false')
-                                return null
+                                return Unit.INSTANCE
                             }
                         }
                 ))
@@ -521,7 +521,7 @@ class MavenFeature {
                 synchronized (result) {
                     result.add(component)
                 }
-                return null
+                return Unit.INSTANCE
             }
         }))
         return result
@@ -610,7 +610,7 @@ class MavenFeature {
                                     req.setGoals(Arrays.asList("dependency:purge-local-repository"))
                                     req.setInteractive(false)
                                     req.getProperties().put("manualInclude", manualInclude)
-                                    return null
+                                    return Unit.INSTANCE
                                 }
                             }
                     )

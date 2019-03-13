@@ -878,7 +878,7 @@ class GitFeatureTest extends BaseTestCase {
                 @Override
                 Unit invoke(ActionContext actionContext, Node project) {
                     commits.add(Git.getLastCommit(actionContext, new File(sandbox.env.basedir, project.@path)))
-                    return null
+                    return Unit.INSTANCE
                 }
             })
         )

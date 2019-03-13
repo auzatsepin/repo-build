@@ -22,7 +22,7 @@ class XmlUtilsTest extends GroovyTestCase {
                     @Override
                     Unit invoke(Node root) {
                         root.parent.version[0].value = "7.0.13-SNAPSHOT"
-                        return null
+                        return Unit.INSTANCE
                     }
                 })
         )

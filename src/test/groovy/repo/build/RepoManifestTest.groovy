@@ -42,7 +42,7 @@ class RepoManifestTest extends BaseTestCase {
                             if (project.@path == 'c1') {
                                 throw new RepoBuildException('test')
                             }
-                            return null
+                            return Unit.INSTANCE
                         }
                     }))
             fail()

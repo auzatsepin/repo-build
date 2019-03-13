@@ -23,4 +23,17 @@ class XmlUtilsTestKt {
         assertEquals(b, c)
     }
 
+    @Test
+    fun `should set parent version kt`() {
+        val a = Resources.toString(Resources.getResource("testSetParentA.xml"), Charset.forName("utf-8"))
+        val b = Resources.toString(Resources.getResource("testSetParentB.xml"), Charset.forName("utf-8"))
+
+        val c = XmlUtilsKt.modifyWithPreserveFormatting(a) { root ->
+            val parent = (root as Element).getElementsByTagName("parent").item(0)
+            val version = (parent as Element).getElementsByTagName("version").item(0)
+            version.textContent = "7.0.13-SNAPSHOT"
+        }
+        assertEquals(b, c)
+    }
+
 }

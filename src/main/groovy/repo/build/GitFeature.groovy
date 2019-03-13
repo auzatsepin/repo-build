@@ -129,7 +129,7 @@ class GitFeature {
                     Unit invoke(ActionContext actionContext, Node project) {
                         sourceBranches.put(project.attribute("name").toString(),
                                 project.attribute("revision").toString().replace("refs/heads/", ""))
-                        return null
+                        return Unit.INSTANCE
                     }
                 })
         )
@@ -170,14 +170,16 @@ class GitFeature {
                                 def targetStringVersion = targetBranch.find(regexp).toString()
                                 Version targetVersion
                                 if (targetStringVersion.split("\\.").length < 3) {
-                                    targetVersion = Version.valueOf(targetStringVersion += ".0")
+                                    targetStringVersion += ".0"
+                                    targetVersion = Version.valueOf(targetStringVersion)
                                 } else {
                                     targetVersion = Version.valueOf(targetStringVersion)
                                 }
                                 def sourceStringVersion = sourceBranch.find(regexp).toString()
                                 Version sourceVersion
                                 if (sourceStringVersion.split("\\.").length < 3) {
-                                    sourceVersion = Version.valueOf(sourceStringVersion += ".0")
+                                    sourceStringVersion += ".0"
+                                    sourceVersion = Version.valueOf(sourceStringVersion)
                                 } else {
                                     sourceVersion = Version.valueOf(sourceStringVersion)
                                 }
@@ -185,11 +187,11 @@ class GitFeature {
                                     Git.merge(context, RepoManifest.getRemoteBranch(context, sourceBranch), dir)
                                 } else {
                                     actionContext.addError(new RepoBuildException("Сomponent $component wasn't automatic merge because the current version $targetBranch is younger $sourceBranch"))
-                                    return null
+                                    return Unit.INSTANCE
                                 }
                             } catch (UnexpectedCharacterException | IllegalArgumentException | NullPointerException e) {
                                 actionContext.addError(new RepoBuildException("Cannot be automatic merge component $component version $sourceBranch to $targetBranch", e))
-                                return null
+                                return Unit.INSTANCE
                             }
                         }
                     }
@@ -295,7 +297,7 @@ class GitFeature {
                                 // switch task if the branch exists
                                 if (taskBranch != null) {
                                     checkoutUpdateIfExists(actionContext, dir, taskBranch)
-                                    return null
+                                    return Unit.INSTANCE
                                 }
                             } else if (Git.branchPresent(context, dir, taskBranch)) {
                                 throw new RepoBuildException("task $taskBranch exists but $featureBranch not exists")
@@ -347,7 +349,7 @@ class GitFeature {
                             Git.user(actionContext, dir,
                                     env.props.getProperty("git.user.name"),
                                     env.props.getProperty("git.user.email"))
-                            return null
+                            return Unit.INSTANCE
                         }
                     })
             )
@@ -395,7 +397,7 @@ class GitFeature {
                                 }
                             }
                             Git.mergeFeatureBranch(actionContext, branch, remoteBranch, startCommit, dir)
-                            return null
+                            return Unit.INSTANCE
                         }
                     }),
                     branch)
@@ -460,7 +462,7 @@ class GitFeature {
                             //println gitName
                             def bundleFile = new File(targetDir, project.@name)
                             Git.createFeatureBundle(actionContext, branch, dir, bundleFile, commits.get(project.@name))
-                            return null
+                            return Unit.INSTANCE
                         }
                     })
             )
@@ -529,12 +531,12 @@ class GitFeature {
                             Git.status(actionContext, dir)
                             if (Git.branchPresent(actionContext, dir, remoteBranch)) {
                                 Git.logUnpushed(actionContext, dir, remoteBranch)
-                                return null
+                                return Unit.INSTANCE
                             } else {
                                 Git.fetch(actionContext, remoteName, dir)
                                 if (Git.branchPresent(actionContext, dir, remoteBranch)) {
                                     Git.logUnpushed(actionContext, dir, remoteBranch)
-                                    return null
+                                    return Unit.INSTANCE
                                 } else {
                                     def unpushed = "Branch not pushed"
                                     actionContext.writeOut(unpushed + '\n')

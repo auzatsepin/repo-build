@@ -196,7 +196,7 @@ class MavenFeatureTest extends BaseTestCase {
                                                 properties.put("newVersion", version)
                                                 properties.put('generateBackupPoms', 'false')
                                                 req.setProperties(properties)
-                                                return null
+                                                return Unit.INSTANCE
                                             }
                                         }
                                 )
@@ -234,7 +234,7 @@ class MavenFeatureTest extends BaseTestCase {
                                                 properties.put("newVersion", '1.1.0-SNAPSHOT')
                                                 properties.put('generateBackupPoms', 'false')
                                                 req.setProperties(properties)
-                                                return null
+                                                return Unit.INSTANCE
                                             }
                                         }
                                 )
@@ -261,7 +261,7 @@ class MavenFeatureTest extends BaseTestCase {
                                                 properties.put("newVersion", '2.1.0-SNAPSHOT')
                                                 properties.put('generateBackupPoms', 'false')
                                                 req.setProperties(properties)
-                                                return null
+                                                return Unit.INSTANCE
                                             }
                                         }
                                 )
@@ -309,7 +309,7 @@ class MavenFeatureTest extends BaseTestCase {
                                                 properties.put("newVersion", '1.1.0-SNAPSHOT')
                                                 properties.put('generateBackupPoms', 'false')
                                                 req.setProperties(properties)
-                                                return null
+                                                return Unit.INSTANCE
                                             }
                                         }
                                 )
@@ -336,7 +336,7 @@ class MavenFeatureTest extends BaseTestCase {
                                                 properties.put("newVersion", '2.1.0-SNAPSHOT')
                                                 properties.put('generateBackupPoms', 'false')
                                                 req.setProperties(properties)
-                                                return null
+                                                return Unit.INSTANCE
                                             }
                                         }
                                 )
@@ -367,7 +367,7 @@ class MavenFeatureTest extends BaseTestCase {
                                             Unit invoke(InvocationRequest req) {
                                                 req.setGoals(Arrays.asList("clean"))
                                                 req.setInteractive(false)
-                                                return null
+                                                return Unit.INSTANCE
                                             }
                                         }
                                 )
@@ -404,7 +404,7 @@ class MavenFeatureTest extends BaseTestCase {
                                                 Properties properties = new Properties()
                                                 properties.put('skipTests', 'true')
                                                 req.setProperties(properties)
-                                                return null
+                                                return Unit.INSTANCE
                                             }
                                         }
                                 )

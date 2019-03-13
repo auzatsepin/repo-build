@@ -57,7 +57,7 @@ class Maven {
                                 req.setGoals(goals)
                                 req.setInteractive(false)
                                 req.getProperties().putAll(p)
-                                return null
+                                return Unit.INSTANCE
                             }
                         }
                 )
